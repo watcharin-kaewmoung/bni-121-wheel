@@ -1,0 +1,4064 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BNI 1-2-1 กงล้อจับคู่</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'IBM Plex Sans Thai', 'Helvetica Neue', 'Segoe UI', sans-serif; background: #f0f2f5; color: #374151; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+/* ===== BNI Brand Header ===== */
+.bni-header {
+  background: linear-gradient(135deg, #cf202e 0%, #a81825 50%, #8a1420 100%);
+  padding: 16px 24px;
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  box-shadow: 0 4px 20px rgba(168,24,37,0.3);
+  position: relative;
+}
+.bni-header::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.3), rgba(255,255,255,0));
+}
+.bni-logo { font-size: 28px; font-weight: 800; color: #fff; letter-spacing: 3px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+.bni-subtitle { font-size: 15px; color: rgba(255,255,255,0.9); font-weight: 400; letter-spacing: 0.5px; }
+
+/* ===== Tab Bar ===== */
+.tab-bar {
+  display: flex; background: #ffffff; justify-content: center;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  position: sticky; top: 0; z-index: 100;
+}
+.tab-btn {
+  flex: 0 1 200px; padding: 14px 8px 12px; text-align: center; cursor: pointer;
+  font-size: 13px; font-weight: 600; color: #9ca3af;
+  border: none; background: none; transition: all 0.25s ease;
+  border-bottom: 3px solid transparent; margin-bottom: -1px;
+  letter-spacing: 0.3px; position: relative;
+}
+.tab-btn .tab-icon { display: block; font-size: 18px; margin-bottom: 2px; }
+.tab-btn:hover { color: #cf202e; background: #fef2f2; }
+.tab-btn.active { color: #cf202e; border-bottom-color: #cf202e; background: #fff; }
+.tab-btn:active { transform: scale(0.97); }
+
+.tab-content { display: none; padding: 28px 40px; max-width: 100%; margin: 0 auto; animation: fadeIn 0.3s ease; }
+#tab-spin { max-width: 1400px; }
+#tab-summary { max-width: 1400px; }
+#tab-members { max-width: 1400px; }
+.tab-content.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* ===== Spin Tab ===== */
+.wheels-container { display: flex; justify-content: center; gap: 14px; flex-wrap: nowrap; margin: 24px 0; }
+.wheel-wrapper {
+  text-align: center; background: #fff; border-radius: 16px;
+  padding: 16px 14px 18px; flex: 1 1 0; min-width: 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.wheel-wrapper:hover { transform: translateY(-2px); box-shadow: 0 4px 24px rgba(0,0,0,0.1); }
+.wheel-wrapper h3 { margin-bottom: 12px; font-size: 14px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+.wheel-wrapper canvas { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+.lt-label { color: #cf202e; }
+.m-label-0 { color: #0d9488; }
+.m-label-1 { color: #2563eb; }
+.m-label-2 { color: #0d9488; }
+.m-label-3 { color: #2563eb; }
+.m-label-4 { color: #0d9488; }
+
+/* ===== Pool Status ===== */
+.pool-status {
+  text-align: center; margin: 12px auto; padding: 18px 24px;
+  background: #fff; border-radius: 16px; max-width: 100%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+  border: 1px solid #f3f4f6;
+}
+.pool-status-row { display: flex; justify-content: center; gap: 28px; flex-wrap: wrap; margin-bottom: 10px; }
+.pool-stat { font-size: 14px; color: #6b7280; font-weight: 500; }
+.pool-stat b { color: #cf202e; font-weight: 700; font-size: 16px; }
+.pool-bar { height: 8px; background: #f3f4f6; border-radius: 4px; overflow: hidden; margin: 6px auto 0; max-width: 400px; }
+.pool-bar-fill { height: 100%; background: linear-gradient(90deg, #cf202e, #ef4444, #f87171); border-radius: 4px; transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
+.pool-complete-msg { color: #059669; font-size: 15px; font-weight: 700; padding: 10px; background: #ecfdf5; border-radius: 8px; margin-top: 8px; }
+.pool-partial-msg { color: #d97706; font-size: 14px; margin-top: 8px; background: #fffbeb; padding: 6px 12px; border-radius: 6px; font-weight: 500; }
+
+/* ===== Spin Buttons ===== */
+.spin-btn-container { text-align: center; margin: 28px 0; display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+#spinBtn {
+  padding: 16px 52px; font-size: 20px; font-weight: 700; border: none; border-radius: 60px; cursor: pointer;
+  background: linear-gradient(135deg, #cf202e 0%, #b91c28 50%, #991b1b 100%);
+  color: #fff; box-shadow: 0 4px 14px rgba(207,32,46,0.35), 0 1px 3px rgba(0,0,0,0.1);
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1); letter-spacing: 1px;
+}
+#spinBtn:hover:not(:disabled) { transform: translateY(-2px) scale(1.03); box-shadow: 0 8px 30px rgba(207,32,46,0.45); }
+#spinBtn:active:not(:disabled) { transform: translateY(0) scale(0.98); }
+#spinBtn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+#spinAllBtn {
+  padding: 16px 40px; font-size: 16px; font-weight: 700; border: none; border-radius: 60px; cursor: pointer;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 50%, #1e40af 100%);
+  color: #fff; box-shadow: 0 4px 14px rgba(37,99,235,0.3);
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1); letter-spacing: 0.5px;
+}
+#spinAllBtn:hover:not(:disabled) { transform: translateY(-2px) scale(1.03); box-shadow: 0 8px 30px rgba(37,99,235,0.4); }
+#spinAllBtn:active:not(:disabled) { transform: translateY(0) scale(0.98); }
+#spinAllBtn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+#simulateBtn {
+  padding: 16px 36px; font-size: 15px; font-weight: 700; border: none; border-radius: 60px; cursor: pointer;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #4338ca 100%);
+  color: #fff; box-shadow: 0 4px 14px rgba(99,102,241,0.3);
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1); letter-spacing: 0.5px;
+}
+#simulateBtn:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 8px 30px rgba(99,102,241,0.4); }
+#simulateBtn:active { transform: translateY(0) scale(0.98); }
+#resetPoolBtn {
+  padding: 16px 32px; font-size: 15px; font-weight: 600;
+  border: 2px solid #e5e7eb; border-radius: 60px; cursor: pointer;
+  background: #fff; color: #9ca3af; transition: all 0.25s ease;
+}
+#resetPoolBtn:hover { border-color: #cf202e; color: #cf202e; background: #fef2f2; }
+.round-header {
+  text-align: center; margin: 28px 0 12px; padding: 10px 24px;
+  font-size: 14px; font-weight: 700; color: #cf202e; text-transform: uppercase; letter-spacing: 1px;
+  border-bottom: 2px solid #fecaca; background: linear-gradient(to bottom, transparent, #fef2f2);
+}
+
+/* ===== Results ===== */
+.results-area { max-width: 100%; margin: 0 auto; }
+.spin-status { text-align: center; font-size: 17px; color: #cf202e; margin: 12px 0; min-height: 28px; font-weight: 700; letter-spacing: 0.3px; }
+.group-results { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin: 20px 0; }
+.group-card {
+  background: #fff; border-radius: 16px; padding: 18px; flex: 1 1 0; min-width: 180px;
+  border-left: 5px solid; box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.group-card:hover { transform: translateY(-2px); box-shadow: 0 4px 24px rgba(0,0,0,0.1); }
+.group-card:nth-child(1) { border-color: #cf202e; }
+.group-card:nth-child(2) { border-color: #0d9488; }
+.group-card:nth-child(3) { border-color: #2563eb; }
+.group-card:nth-child(4) { border-color: #d97706; }
+.group-card:nth-child(5) { border-color: #7c3aed; }
+.group-card h4 { margin-bottom: 12px; font-size: 15px; color: #111827; font-weight: 700; }
+.group-card .member-item { padding: 10px 0; border-bottom: 1px solid #f3f4f6; font-size: 14px; }
+.group-card .member-item:last-child { border-bottom: none; }
+.group-card .member-item .role-tag { display: inline-block; font-size: 10px; padding: 3px 10px; border-radius: 20px; margin-right: 8px; font-weight: 700; vertical-align: top; margin-top: 2px; letter-spacing: 0.5px; text-transform: uppercase; }
+.member-detail-name { font-weight: 700; font-size: 15px; color: #111827; }
+.member-detail-fullname { color: #9ca3af; font-size: 12px; margin-top: 2px; }
+.member-detail-company { color: #6b7280; font-size: 11px; margin-top: 2px; }
+.member-detail-lcd { color: #9ca3af; font-size: 11px; font-style: italic; }
+.role-lt { background: linear-gradient(135deg, #cf202e, #b91c28); color: #fff; }
+.role-member { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; }
+.member-only-badge { display: inline-block; background: linear-gradient(135deg, #0ea5e9, #0284c7); color: #fff; font-size: 12px; font-weight: 700; padding: 4px 14px; border-radius: 20px; letter-spacing: 0.5px; }
+
+/* ===== Smart Pairing Explanation (T2-1) ===== */
+.smart-reasons { margin-top: 10px; border-top: 1px dashed #e5e7eb; padding-top: 6px; }
+.smart-reasons-toggle { font-size: 11px; color: #6b7280; cursor: pointer; user-select: none; padding: 4px 0; }
+.smart-reasons-toggle::before { content: '▶ '; font-size: 9px; }
+.smart-reasons.open .smart-reasons-toggle::before { content: '▼ '; }
+.smart-reasons-body { display: none; margin-top: 6px; }
+.smart-reasons.open .smart-reasons-body { display: block; }
+.smart-reason-item { font-size: 11px; padding: 3px 0; color: #6b7280; display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; }
+.smart-reason-name { font-weight: 600; color: #374151; }
+.smart-reason-score { background: #f3f4f6; padding: 1px 6px; border-radius: 8px; font-size: 10px; font-weight: 600; }
+.smart-reason-text { font-size: 10px; color: #9ca3af; }
+
+/* ===== CSV Import (T2-3) ===== */
+.btn-csv-import {
+  background: #fff; color: #7c3aed; border: 1.5px solid #c4b5fd;
+  padding: 9px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 13px; transition: all 0.2s;
+}
+.btn-csv-import:hover { background: #f5f3ff; border-color: #7c3aed; }
+
+/* ===== Health Score (T2-2) ===== */
+.health-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+.health-high { background: #dcfce7; color: #166534; }
+.health-mid { background: #fef9c3; color: #854d0e; }
+.health-low { background: #fef2f2; color: #991b1b; }
+
+/* ===== Follow-Up (T2-5) ===== */
+.followup-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; margin-left: 4px; cursor: pointer; }
+.followup-pending { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+.followup-done { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+
+.action-btns { text-align: center; margin: 24px 0; display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+.action-btns button { padding: 12px 32px; font-size: 15px; border: none; border-radius: 60px; cursor: pointer; font-weight: 600; transition: all 0.25s ease; }
+#saveBtn { background: linear-gradient(135deg, #059669, #047857); color: #fff; box-shadow: 0 2px 8px rgba(5,150,105,0.3); }
+#saveBtn:hover { background: linear-gradient(135deg, #047857, #065f46); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(5,150,105,0.4); }
+#rerollBtn { background: #fff; color: #9ca3af; border: 2px solid #e5e7eb; }
+#rerollBtn:hover { border-color: #cf202e; color: #cf202e; background: #fef2f2; }
+#continueSpinBtn { background: linear-gradient(135deg, #cf202e, #b91c28); color: #fff; }
+#continueSpinBtn:hover { background: linear-gradient(135deg, #b91c28, #991b1b); }
+
+/* ===== History Tab ===== */
+.history-list { max-width: 100%; margin: 0 auto; }
+.history-item {
+  background: #fff; border-radius: 16px; padding: 20px; margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.04);
+  border: 1px solid #f3f4f6; transition: box-shadow 0.2s ease;
+}
+.history-item:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+.history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #f3f4f6; }
+.history-header span:first-child { font-weight: 700; color: #111827; font-size: 15px; }
+.history-header .timestamp { color: #9ca3af; font-size: 13px; font-weight: 400; }
+.history-header .delete-btn {
+  background: none; border: 1px solid #fecaca; color: #ef4444; padding: 5px 16px;
+  border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s;
+}
+.history-header .delete-btn:hover { background: #ef4444; color: #fff; border-color: #ef4444; }
+.history-groups { display: flex; gap: 12px; flex-wrap: nowrap; }
+.history-group {
+  flex: 1 1 0; min-width: 0; background: #f9fafb; border-radius: 12px; padding: 14px;
+  font-size: 13px; border: 2px solid #e5e7eb; transition: all 0.2s ease;
+}
+.history-group h5 { margin-bottom: 8px; color: #cf202e; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; }
+.history-member-detail { margin: 6px 0; padding: 4px 0; }
+.history-member-name { font-weight: 600; color: #111827; font-size: 13px; }
+.history-member-sub { color: #9ca3af; font-size: 11px; margin-top: 1px; }
+.no-history { text-align: center; color: #9ca3af; padding: 60px 20px; font-size: 16px; }
+
+/* ===== Summary / Stats ===== */
+.summary-cards { display: flex; gap: 16px; flex-wrap: wrap; max-width: 100%; margin: 0 auto 28px; }
+.stat-card {
+  flex: 1; min-width: 160px; background: #fff; border-radius: 16px; padding: 24px 18px;
+  text-align: center; position: relative; overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.04);
+  border: 1px solid #f3f4f6; transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+.stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #cf202e, #ef4444); }
+.stat-card .stat-num { font-size: 38px; font-weight: 800; color: #111827; letter-spacing: -1px; }
+.stat-card .stat-label { font-size: 12px; color: #9ca3af; margin-top: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.summary-table-container { max-width: 100%; margin: 0 auto; }
+.summary-table-container h3 { margin-bottom: 16px; color: #111827; font-size: 18px; font-weight: 700; }
+.export-btn {
+  padding: 9px 24px; background: linear-gradient(135deg, #059669, #047857); color: #fff;
+  border: none; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 13px;
+  transition: all 0.25s ease; box-shadow: 0 2px 6px rgba(5,150,105,0.2);
+}
+.export-btn:hover { background: linear-gradient(135deg, #047857, #065f46); transform: translateY(-1px); }
+
+/* ===== Tables ===== */
+table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.04); }
+th { background: linear-gradient(135deg, #1f2937, #374151); padding: 14px 12px; text-align: left; font-size: 12px; color: #f9fafb; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+td { padding: 12px 12px; border-bottom: 1px solid #f3f4f6; font-size: 13px; color: #374151; transition: background 0.15s ease; }
+tr:last-child td { border-bottom: none; }
+tr:nth-child(even) td { background: #f9fafb; }
+tr:hover td { background: #f0f9ff !important; }
+.not-paired td { color: #ef4444; }
+.filter-bar { margin-bottom: 16px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; background: #f9fafb; padding: 14px 16px; border-radius: 12px; border: 1px solid #f3f4f6; }
+.filter-bar select, .filter-bar input[type="text"], .filter-bar input[type="date"] {
+  padding: 9px 14px; border-radius: 10px; border: 1px solid #e5e7eb; background: #fff; color: #374151;
+  font-size: 13px; transition: all 0.2s ease; font-family: inherit;
+}
+.filter-bar select:focus, .filter-bar input:focus { outline: none; border-color: #cf202e; box-shadow: 0 0 0 3px rgba(207,32,46,0.08); }
+.filter-bar input[type="text"] { flex: 1; min-width: 140px; }
+.filter-bar label { font-size: 13px; color: #6b7280; font-weight: 500; }
+
+/* ===== Members Tab ===== */
+.members-mgmt { max-width: 100%; margin: 0 auto; }
+.members-stats { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+.members-stats .stat-card { flex: 1; min-width: 140px; }
+.members-toolbar {
+  display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 16px;
+  background: #f9fafb; padding: 14px 16px; border-radius: 12px; border: 1px solid #f3f4f6;
+}
+.members-toolbar select, .members-toolbar input {
+  padding: 9px 14px; border-radius: 10px; border: 1px solid #e5e7eb; background: #fff; color: #374151;
+  font-size: 13px; transition: all 0.2s ease; font-family: inherit;
+}
+.members-toolbar select:focus, .members-toolbar input:focus { outline: none; border-color: #cf202e; box-shadow: 0 0 0 3px rgba(207,32,46,0.08); }
+.members-toolbar input { flex: 1; min-width: 140px; }
+.members-toolbar button {
+  padding: 9px 22px; border: none; border-radius: 20px; cursor: pointer;
+  font-weight: 600; font-size: 13px; transition: all 0.25s ease; font-family: inherit;
+}
+.btn-add-member { background: linear-gradient(135deg, #cf202e, #b91c28); color: #fff; box-shadow: 0 2px 6px rgba(207,32,46,0.2); }
+.btn-add-member:hover { background: linear-gradient(135deg, #b91c28, #991b1b); transform: translateY(-1px); }
+.btn-reset-members { background: #fff; color: #ef4444; border: 1.5px solid #fecaca !important; font-size: 12px; }
+.btn-reset-members:hover { background: #fef2f2; border-color: #ef4444 !important; }
+
+/* ===== Member Form Modal ===== */
+.member-form-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+.member-form-overlay.show { display: flex; animation: fadeIn 0.2s ease; }
+.member-form {
+  background: #fff; border-radius: 20px; padding: 0; width: 90%; max-width: 450px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2); overflow: hidden;
+  animation: slideUp 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+.member-form h3 { margin-bottom: 0; color: #fff; background: linear-gradient(135deg, #cf202e, #991b1b); padding: 22px 28px; font-size: 18px; font-weight: 700; }
+.member-form label { display: block; font-size: 12px; color: #9ca3af; margin-bottom: 5px; margin-top: 16px; padding: 0 28px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.member-form input, .member-form select {
+  width: calc(100% - 56px); margin: 0 28px; padding: 11px 14px; border-radius: 10px;
+  border: 1.5px solid #e5e7eb; background: #f9fafb; color: #374151; font-size: 14px;
+  transition: all 0.2s ease; font-family: inherit;
+}
+.member-form input:focus, .member-form select:focus { outline: none; border-color: #cf202e; box-shadow: 0 0 0 3px rgba(207,32,46,0.08); background: #fff; }
+.member-form .form-btns { display: flex; gap: 12px; margin-top: 28px; padding: 0 28px 28px; }
+.member-form .form-btns button {
+  flex: 1; padding: 13px; border: none; border-radius: 12px; cursor: pointer;
+  font-weight: 700; font-size: 14px; transition: all 0.25s ease; font-family: inherit;
+}
+.btn-form-save { background: linear-gradient(135deg, #cf202e, #b91c28); color: #fff; box-shadow: 0 2px 8px rgba(207,32,46,0.25); }
+.btn-form-save:hover { background: linear-gradient(135deg, #b91c28, #991b1b); transform: translateY(-1px); }
+.btn-form-cancel { background: #f3f4f6; color: #6b7280; }
+.btn-form-cancel:hover { background: #e5e7eb; color: #374151; }
+
+/* ===== Members Table ===== */
+.members-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.04); }
+.members-table th { background: linear-gradient(135deg, #1f2937, #374151); padding: 14px 12px; text-align: left; font-size: 12px; color: #f9fafb; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.members-table td { padding: 11px 12px; border-bottom: 1px solid #f3f4f6; font-size: 13px; color: #374151; transition: background 0.15s ease; }
+.members-table tr:last-child td { border-bottom: none; }
+.members-table tr:nth-child(even) td { background: #f9fafb; }
+.members-table tr:hover td { background: #f0f9ff !important; }
+.btn-delete-member {
+  background: none; border: 1.5px solid #fecaca; color: #ef4444; padding: 5px 14px;
+  border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s;
+  white-space: nowrap;
+}
+.btn-delete-member:hover { background: #ef4444; color: #fff; border-color: #ef4444; }
+
+/* ===== Spin Settings ===== */
+.spin-settings {
+  display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;
+  margin-top: 12px; padding-top: 12px; border-top: 1px solid #f3f4f6;
+}
+.spin-settings label { font-size: 13px; color: #6b7280; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+.spin-settings select {
+  padding: 5px 10px; border-radius: 8px; border: 1px solid #e5e7eb;
+  font-size: 13px; color: #374151; background: #f9fafb; font-family: inherit;
+  transition: border-color 0.2s;
+}
+.spin-settings select:focus { outline: none; border-color: #cf202e; }
+.spin-settings .settings-info { width: 100%; text-align: center; font-size: 12px; color: #9ca3af; margin-top: 4px; }
+
+/* ===== Arrow indicator ===== */
+.arrow-indicator { width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 18px solid #cf202e; margin: 0 auto 6px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.15)); }
+
+/* ===== Absent System ===== */
+.absent-toggle { cursor: pointer; width: 18px; height: 18px; accent-color: #059669; }
+.absent-row td { opacity: 0.35; }
+.absent-row td:first-child { opacity: 1; }
+.btn-reset-absent {
+  background: #fff; color: #d97706; border: 1.5px solid #fde68a !important;
+  padding: 7px 18px; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 12px; transition: all 0.2s;
+}
+.btn-reset-absent:hover { background: #fffbeb; border-color: #d97706 !important; }
+.member-action-btns { display: flex; gap: 6px; align-items: center; }
+.btn-edit-member {
+  background: none; border: 1.5px solid #bfdbfe; color: #2563eb; padding: 5px 14px;
+  border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s;
+  white-space: nowrap;
+}
+.btn-edit-member:hover { background: #2563eb; color: #fff; border-color: #2563eb; }
+
+/* ===== Backup / Restore ===== */
+.btn-backup {
+  background: linear-gradient(135deg, #059669, #047857); color: #fff; border: none;
+  padding: 9px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 13px;
+  transition: all 0.25s ease; box-shadow: 0 2px 6px rgba(5,150,105,0.2);
+}
+.btn-backup:hover { background: linear-gradient(135deg, #047857, #065f46); transform: translateY(-1px); }
+.btn-restore {
+  background: #fff; color: #2563eb; border: 1.5px solid #bfdbfe;
+  padding: 9px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 13px; transition: all 0.2s;
+}
+.btn-restore:hover { background: #eff6ff; border-color: #2563eb; }
+.backup-toolbar {
+  display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px;
+  padding: 12px 16px; background: #f0fdf4; border-radius: 12px; border: 1px solid #bbf7d0;
+  align-items: center;
+}
+.backup-toolbar::before { content: 'DATA'; font-size: 10px; font-weight: 800; color: #059669; letter-spacing: 1px; margin-right: 4px; }
+
+/* ===== Inverse View Modal ===== */
+.member-detail-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+.member-detail-modal.show { display: flex; animation: fadeIn 0.2s ease; }
+.member-detail-modal .modal-content {
+  background: #fff; border-radius: 20px; width: 90%; max-width: 550px; max-height: 80vh;
+  overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  animation: slideUp 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+.member-detail-modal .modal-header {
+  background: linear-gradient(135deg, #cf202e, #991b1b); color: #fff; padding: 22px 28px;
+  border-radius: 20px 20px 0 0; display: flex; justify-content: space-between; align-items: center;
+}
+.member-detail-modal .modal-header h3 { margin: 0; font-size: 18px; font-weight: 700; }
+.member-detail-modal .modal-close { background: rgba(255,255,255,0.2); border: none; color: #fff; font-size: 20px; cursor: pointer; padding: 4px 10px; border-radius: 8px; transition: background 0.2s; }
+.member-detail-modal .modal-close:hover { background: rgba(255,255,255,0.3); }
+.member-detail-modal .modal-body { padding: 24px 28px; }
+.paired-list, .not-met-list { margin: 10px 0 20px; }
+.paired-list .pair-item, .not-met-list .pair-item {
+  padding: 10px 12px; margin: 4px 0; border-radius: 10px; background: #f9fafb;
+  font-size: 13px; display: flex; justify-content: space-between; align-items: center;
+  border: 1px solid #f3f4f6; transition: background 0.15s;
+}
+.paired-list .pair-item:hover, .not-met-list .pair-item:hover { background: #f0f9ff; }
+.section-title { font-weight: 700; font-size: 14px; margin-top: 16px; padding: 8px 0; border-bottom: 2px solid #cf202e; color: #cf202e; }
+.section-title.green { color: #059669; border-color: #059669; }
+
+/* ===== Heatmap ===== */
+.heatmap-container {
+  position: relative; max-width: 100%; margin: 24px auto; background: #fff;
+  border-radius: 16px; padding: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.04);
+  overflow: auto; border: 1px solid #f3f4f6;
+}
+.heatmap-controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+.heatmap-controls select { padding: 7px 12px; border-radius: 8px; border: 1px solid #e5e7eb; font-size: 13px; font-family: inherit; background: #f9fafb; }
+.heatmap-tooltip {
+  position: fixed; background: #1f2937; color: #fff; padding: 10px 16px; border-radius: 10px;
+  font-size: 13px; pointer-events: none; z-index: 2000; display: none; white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2); font-weight: 500;
+}
+.heatmap-legend { display: flex; gap: 10px; align-items: center; margin-top: 12px; font-size: 12px; color: #6b7280; font-weight: 500; flex-wrap: wrap; }
+.heatmap-legend span { display: inline-block; width: 24px; height: 16px; border-radius: 4px; border: 1px solid #e5e7eb; }
+
+/* ===== Meeting Confirmation ===== */
+.confirm-btn {
+  padding: 4px 14px; border-radius: 20px; cursor: pointer; font-size: 11px;
+  font-weight: 700; transition: all 0.2s ease; border: 1.5px solid; letter-spacing: 0.3px;
+}
+.confirm-btn.confirmed { background: #059669; color: #fff; border-color: #059669; box-shadow: 0 2px 4px rgba(5,150,105,0.2); }
+.confirm-btn.unconfirmed { background: #fff; color: #9ca3af; border-color: #e5e7eb; }
+.confirm-btn:hover { transform: scale(1.05); }
+.history-group.confirmed { border-color: #34d399; background: #f0fdf4; }
+.history-group.unconfirmed { border-color: #e5e7eb; }
+
+/* ===== History Toolbar ===== */
+.history-toolbar {
+  display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+  margin-bottom: 16px; padding: 14px 16px; background: #f9fafb;
+  border-radius: 12px; border: 1px solid #f3f4f6; max-width: 100%; margin: 0 auto 16px;
+}
+.history-toolbar input[type="text"], .history-toolbar input[type="date"] {
+  padding: 9px 14px; border-radius: 10px; border: 1px solid #e5e7eb; background: #fff;
+  color: #374151; font-size: 13px; transition: all 0.2s ease; font-family: inherit;
+}
+.history-toolbar input:focus { outline: none; border-color: #cf202e; box-shadow: 0 0 0 3px rgba(207,32,46,0.08); }
+.history-toolbar input[type="text"] { flex: 1; min-width: 140px; }
+.history-toolbar .toolbar-spacer { flex: 1; min-width: 0; }
+.btn-bulk-action {
+  padding: 8px 18px; border-radius: 20px; cursor: pointer; font-weight: 600;
+  font-size: 12px; transition: all 0.2s ease; font-family: inherit; border: 1.5px solid;
+}
+.btn-confirm-all { background: #f0fdf4; color: #059669; border-color: #bbf7d0; }
+.btn-confirm-all:hover { background: #059669; color: #fff; border-color: #059669; }
+.btn-delete-all { background: #fff; color: #ef4444; border-color: #fecaca; }
+.btn-delete-all:hover { background: #ef4444; color: #fff; border-color: #ef4444; }
+.unconfirmed-badge {
+  display: inline-block; background: #fbbf24; color: #78350f; font-size: 11px;
+  padding: 2px 10px; border-radius: 12px; font-weight: 700;
+}
+
+/* ===== Filter Bar Rows ===== */
+.filter-bar-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; width: 100%; }
+.filter-bar-row + .filter-bar-row { margin-top: 10px; }
+.btn-clear-filter {
+  padding: 8px 18px; border: 1.5px solid #e5e7eb; border-radius: 20px; background: #fff;
+  color: #6b7280; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit;
+}
+.btn-clear-filter:hover { border-color: #cf202e; color: #cf202e; background: #fef2f2; }
+
+/* ===== Continue Spin ===== */
+.save-success-area { text-align: center; padding: 20px; }
+.save-success-area .success-msg { color: #059669; font-size: 16px; font-weight: 600; margin-bottom: 14px; }
+.btn-continue-spin {
+  padding: 14px 40px; font-size: 15px; font-weight: 700; border: none; border-radius: 60px;
+  cursor: pointer; background: linear-gradient(135deg, #cf202e, #b91c28); color: #fff;
+  box-shadow: 0 4px 14px rgba(207,32,46,0.3); transition: all 0.3s ease; font-family: inherit;
+}
+.btn-continue-spin:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(207,32,46,0.4); }
+
+/* ===== Select All ===== */
+.select-all-checkbox { cursor: pointer; width: 16px; height: 16px; accent-color: #059669; }
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .wheels-container { flex-direction: column; align-items: center; gap: 16px; }
+  .group-results { flex-direction: column; align-items: center; }
+  .group-card { max-width: 100%; }
+  .summary-cards { flex-direction: column; }
+  .members-stats { flex-direction: column; }
+  .tab-btn { flex: 1; font-size: 11px; padding: 10px 4px 8px; }
+  .tab-btn .tab-icon { font-size: 16px; }
+  #spinBtn { padding: 16px 44px; font-size: 18px; }
+  #spinAllBtn { padding: 14px 32px; font-size: 15px; }
+  table, .members-table { font-size: 12px; }
+  th, td, .members-table th, .members-table td { padding: 8px 6px; }
+  .tab-content { padding: 20px 14px; }
+  .wheel-wrapper { padding: 14px 16px 18px; }
+  .bni-header { padding: 14px 16px; }
+  .bni-logo { font-size: 24px; }
+  .filter-bar, .members-toolbar { padding: 12px; }
+  .backup-toolbar { padding: 10px 12px; }
+  .history-toolbar { padding: 12px; }
+  .history-groups { flex-wrap: wrap; }
+  .history-group { min-width: 200px; }
+}
+
+@media (max-width: 480px) {
+  .spin-btn-container { flex-direction: column; align-items: center; }
+  #spinBtn, #spinAllBtn, #resetPoolBtn { width: 100%; max-width: 280px; }
+  .action-btns { flex-direction: column; align-items: center; }
+  .action-btns button { width: 100%; max-width: 280px; }
+  .history-toolbar { flex-direction: column; }
+  .history-toolbar .toolbar-spacer { display: none; }
+  .btn-continue-spin { width: 100%; max-width: 280px; }
+}
+
+/* ===== Feature A: Print / Share ===== */
+.btn-share {
+  padding: 8px 18px; border-radius: 20px; cursor: pointer; font-weight: 600;
+  font-size: 12px; transition: all 0.2s ease; font-family: inherit; border: 1.5px solid;
+}
+.btn-copy-line { background: #f0fdf4; color: #059669; border-color: #bbf7d0; }
+.btn-copy-line:hover { background: #059669; color: #fff; border-color: #059669; }
+.btn-print { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
+.btn-print:hover { background: #2563eb; color: #fff; border-color: #2563eb; }
+.btn-copy-small { background: none; border: 1px solid #d1d5db; color: #6b7280; padding: 3px 10px; border-radius: 12px; cursor: pointer; font-size: 11px; font-weight: 600; transition: all 0.2s; }
+.btn-copy-small:hover { background: #059669; color: #fff; border-color: #059669; }
+.share-toast {
+  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+  background: #1f2937; color: #fff; padding: 12px 28px; border-radius: 12px;
+  font-size: 14px; font-weight: 600; z-index: 9999; opacity: 0; transition: opacity 0.3s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+.share-toast.show { opacity: 1; }
+@media print {
+  .tab-bar, .bni-header, .spin-btn-container, .pool-status, .action-btns,
+  .wheels-container, .spin-status, .share-btns-row, .btn-share { display: none !important; }
+  .tab-content { display: block !important; padding: 10px !important; }
+  #tab-spin .group-results { display: flex !important; }
+  body { background: #fff !important; }
+}
+
+/* ===== Feature F: Lock/Exclude Pairs ===== */
+.pair-rules-section { margin-top: 20px; padding: 16px; background: #fff; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #f3f4f6; }
+.pair-rules-section h3 { font-size: 16px; color: #111827; margin-bottom: 12px; font-weight: 700; }
+.pair-rules-list { margin: 8px 0; }
+.pair-rule-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; margin: 4px 0; background: #f9fafb; border-radius: 10px; border: 1px solid #f3f4f6; font-size: 13px; }
+.pair-rule-item .rule-type { font-size: 10px; padding: 3px 10px; border-radius: 12px; font-weight: 700; text-transform: uppercase; }
+.rule-type-exclude { background: #fef2f2; color: #ef4444; }
+.rule-type-lock { background: #f0fdf4; color: #059669; }
+.pair-rule-item .rule-reason { color: #9ca3af; font-size: 11px; }
+.btn-add-rule { padding: 8px 18px; border: 1.5px dashed #d1d5db; border-radius: 12px; background: #fff; color: #6b7280; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+.btn-add-rule:hover { border-color: #cf202e; color: #cf202e; background: #fef2f2; }
+.btn-delete-rule { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 6px; transition: background 0.2s; }
+.btn-delete-rule:hover { background: #fef2f2; }
+.rule-form-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+.rule-form-overlay.show { display: flex; animation: fadeIn 0.2s ease; }
+.rule-form { background: #fff; border-radius: 20px; padding: 0; width: 90%; max-width: 450px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); overflow: hidden; animation: slideUp 0.3s cubic-bezier(0.4,0,0.2,1); }
+.rule-form h3 { margin-bottom: 0; color: #fff; background: linear-gradient(135deg, #cf202e, #991b1b); padding: 22px 28px; font-size: 18px; font-weight: 700; }
+.rule-form label { display: block; font-size: 12px; color: #9ca3af; margin-bottom: 5px; margin-top: 16px; padding: 0 28px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.rule-form select, .rule-form input { width: calc(100% - 56px); margin: 0 28px; padding: 11px 14px; border-radius: 10px; border: 1.5px solid #e5e7eb; background: #f9fafb; color: #374151; font-size: 14px; transition: all 0.2s ease; font-family: inherit; }
+.rule-form select:focus, .rule-form input:focus { outline: none; border-color: #cf202e; box-shadow: 0 0 0 3px rgba(207,32,46,0.08); background: #fff; }
+.rule-form .form-btns { display: flex; gap: 12px; margin-top: 28px; padding: 0 28px 28px; }
+.rule-form .form-btns button { flex: 1; padding: 13px; border: none; border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 14px; transition: all 0.25s ease; font-family: inherit; }
+
+/* ===== Feature B: Meeting Notes ===== */
+.notes-btn { padding: 4px 12px; border-radius: 12px; cursor: pointer; font-size: 11px; font-weight: 600; transition: all 0.2s; border: 1.5px solid #bfdbfe; background: #eff6ff; color: #2563eb; font-family: inherit; }
+.notes-btn:hover { background: #2563eb; color: #fff; border-color: #2563eb; }
+.notes-btn.has-notes { background: #dbeafe; }
+.notes-display { margin-top: 6px; padding: 8px 10px; background: #fffff0; border-radius: 8px; font-size: 12px; color: #78350f; border: 1px solid #fef3c7; white-space: pre-wrap; }
+.notes-form-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+.notes-form-overlay.show { display: flex; animation: fadeIn 0.2s ease; }
+.notes-form { background: #fff; border-radius: 20px; padding: 0; width: 90%; max-width: 500px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); overflow: hidden; animation: slideUp 0.3s cubic-bezier(0.4,0,0.2,1); }
+.notes-form h3 { margin-bottom: 0; color: #fff; background: linear-gradient(135deg, #2563eb, #1d4ed8); padding: 22px 28px; font-size: 18px; font-weight: 700; }
+.notes-textarea { width: calc(100% - 56px); margin: 20px 28px 0; padding: 14px; border-radius: 12px; border: 1.5px solid #e5e7eb; font-size: 14px; font-family: inherit; resize: vertical; min-height: 120px; color: #374151; background: #f9fafb; }
+.notes-textarea:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.08); background: #fff; }
+.notes-form .form-btns { display: flex; gap: 12px; margin-top: 20px; padding: 0 28px 28px; }
+.notes-form .form-btns button { flex: 1; padding: 13px; border: none; border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 14px; transition: all 0.25s ease; font-family: inherit; }
+
+/* ===== Feature G: Dark Mode ===== */
+.dark-mode-btn {
+  position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+  background: rgba(255,255,255,0.15); border: none; color: #fff; font-size: 20px;
+  cursor: pointer; padding: 6px 10px; border-radius: 10px; transition: background 0.2s;
+}
+.dark-mode-btn:hover { background: rgba(255,255,255,0.25); }
+body.dark { background: #1a1a2e; color: #e0e0e0; }
+body.dark .tab-bar { background: #16213e; border-bottom-color: #0f3460; }
+body.dark .tab-btn { color: #8899aa; }
+body.dark .tab-btn:hover { color: #f0f0f0; background: #1a2744; }
+body.dark .tab-btn.active { color: #f87171; border-bottom-color: #f87171; background: #16213e; }
+body.dark .tab-content { color: #e0e0e0; }
+body.dark .pool-status { background: #16213e; border-color: #0f3460; }
+body.dark .pool-stat { color: #a0a0b0; }
+body.dark .wheel-wrapper { background: #16213e; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+body.dark .group-card { background: #16213e; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+body.dark .group-card h4 { color: #f0f0f0; }
+body.dark .member-detail-name { color: #f0f0f0; }
+body.dark .member-detail-fullname { color: #8899aa; }
+body.dark .member-detail-company { color: #8899aa; }
+body.dark .history-item { background: #16213e; border-color: #0f3460; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+body.dark .history-header span:first-child { color: #f0f0f0; }
+body.dark .history-group { background: #1a2744; border-color: #0f3460; }
+body.dark .history-group.confirmed { background: #0f2a1f; border-color: #059669; }
+body.dark .history-member-name { color: #f0f0f0; }
+body.dark .history-member-sub { color: #8899aa; }
+body.dark .stat-card { background: #16213e; border-color: #0f3460; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+body.dark .stat-card .stat-num { color: #f0f0f0; }
+body.dark table, body.dark .members-table { background: #16213e; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+body.dark th, body.dark .members-table th { background: linear-gradient(135deg, #0f3460, #1a2744); }
+body.dark td, body.dark .members-table td { color: #e0e0e0; border-bottom-color: #0f3460; }
+body.dark tr:nth-child(even) td { background: #1a2744; }
+body.dark tr:hover td { background: #1e3a5f !important; }
+body.dark .filter-bar, body.dark .members-toolbar, body.dark .history-toolbar { background: #16213e; border-color: #0f3460; }
+body.dark .filter-bar select, body.dark .filter-bar input, body.dark .members-toolbar select, body.dark .members-toolbar input, body.dark .history-toolbar input { background: #1a2744; border-color: #0f3460; color: #e0e0e0; }
+body.dark .filter-bar label { color: #8899aa; }
+body.dark .member-form, body.dark .rule-form, body.dark .notes-form { background: #16213e; }
+body.dark .member-form input, body.dark .member-form select, body.dark .rule-form select, body.dark .rule-form input, body.dark .notes-textarea { background: #1a2744; border-color: #0f3460; color: #e0e0e0; }
+body.dark .member-form label, body.dark .rule-form label { color: #8899aa; }
+body.dark .btn-form-cancel { background: #1a2744; color: #8899aa; }
+body.dark .member-detail-modal .modal-content { background: #16213e; }
+body.dark .member-detail-modal .modal-body { color: #e0e0e0; }
+body.dark .paired-list .pair-item, body.dark .not-met-list .pair-item { background: #1a2744; border-color: #0f3460; color: #e0e0e0; }
+body.dark .heatmap-container { background: #16213e; border-color: #0f3460; }
+body.dark .backup-toolbar { background: #0f2a1f; border-color: #065f46; }
+body.dark .pair-rules-section { background: #16213e; border-color: #0f3460; }
+body.dark .pair-rules-section h3 { color: #f0f0f0; }
+body.dark .pair-rule-item { background: #1a2744; border-color: #0f3460; color: #e0e0e0; }
+body.dark .notes-display { background: #1a2744; border-color: #0f3460; color: #e0e0e0; }
+body.dark .spin-settings label { color: #8899aa; }
+body.dark .spin-settings select { background: #1a2744; border-color: #0f3460; color: #e0e0e0; }
+
+/* ===== Feature C: Dashboard KPI ===== */
+.kpi-dashboard { margin-bottom: 28px; }
+.kpi-cards { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 20px; }
+.kpi-card {
+  flex: 1; min-width: 140px; background: #fff; border-radius: 16px; padding: 20px 16px;
+  text-align: center; position: relative; overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.04);
+  border: 1px solid #f3f4f6;
+}
+.kpi-card .kpi-num { font-size: 32px; font-weight: 800; color: #cf202e; }
+.kpi-card .kpi-label { font-size: 11px; color: #9ca3af; margin-top: 2px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+body.dark .kpi-card { background: #16213e; border-color: #0f3460; }
+body.dark .kpi-card .kpi-num { color: #f87171; }
+.top5-list { margin: 16px 0; }
+.top5-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; margin: 4px 0; background: #f9fafb; border-radius: 10px; font-size: 13px; border: 1px solid #f3f4f6; }
+body.dark .top5-item { background: #1a2744; border-color: #0f3460; color: #e0e0e0; }
+.top5-rank { font-size: 18px; font-weight: 800; color: #cf202e; min-width: 28px; text-align: center; }
+.trend-chart-container { background: #fff; border-radius: 16px; padding: 16px; margin: 16px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #f3f4f6; }
+body.dark .trend-chart-container { background: #16213e; border-color: #0f3460; }
+.alert-box { padding: 12px 16px; border-radius: 12px; font-size: 13px; font-weight: 500; margin: 10px 0; }
+.alert-box-warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+body.dark .alert-box-warning { background: #422006; color: #fbbf24; border-color: #78350f; }
+.dashboard-row { display: flex; gap: 16px; flex-wrap: wrap; }
+.dashboard-col { flex: 1; min-width: 280px; }
+
+/* ===== Feature D: Individual Goals ===== */
+.goal-progress-bar { width: 100%; height: 8px; background: #f3f4f6; border-radius: 4px; overflow: hidden; margin-top: 4px; }
+.goal-progress-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
+.goal-low { background: linear-gradient(90deg, #ef4444, #f87171); }
+.goal-mid { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.goal-high { background: linear-gradient(90deg, #059669, #34d399); }
+.goal-input { width: 60px !important; min-width: 60px !important; flex: 0 !important; text-align: center; }
+
+/* ===== Feature H: Cloud Sync ===== */
+.sync-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-left: 8px; vertical-align: middle; }
+.sync-dot.connected { background: #34d399; box-shadow: 0 0 6px rgba(52,211,153,0.5); animation: syncPulse 2s infinite; }
+.sync-dot.disconnected { background: #6b7280; }
+.sync-dot.syncing { background: #fbbf24; animation: syncPulse 0.5s infinite; }
+@keyframes syncPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+.sync-section { margin-top: 20px; padding: 16px; background: #fff; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #f3f4f6; }
+body.dark .sync-section { background: #16213e; border-color: #0f3460; }
+.sync-section h3 { font-size: 16px; color: #111827; margin-bottom: 12px; font-weight: 700; }
+body.dark .sync-section h3 { color: #f0f0f0; }
+.sync-room-code { font-size: 28px; font-weight: 800; letter-spacing: 6px; color: #cf202e; text-align: center; padding: 16px; background: #fef2f2; border-radius: 12px; margin: 12px 0; font-family: monospace; }
+body.dark .sync-room-code { background: #2a1015; }
+.sync-status-text { font-size: 13px; color: #6b7280; margin: 8px 0; }
+.btn-sync { padding: 9px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 13px; transition: all 0.25s ease; font-family: inherit; border: none; }
+.btn-sync-create { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; box-shadow: 0 2px 6px rgba(37,99,235,0.2); }
+.btn-sync-create:hover { background: linear-gradient(135deg, #1d4ed8, #1e40af); transform: translateY(-1px); }
+.btn-sync-join { background: #fff; color: #2563eb; border: 1.5px solid #bfdbfe !important; }
+.btn-sync-join:hover { background: #eff6ff; border-color: #2563eb !important; }
+.btn-sync-disconnect { background: #fff; color: #ef4444; border: 1.5px solid #fecaca !important; }
+.btn-sync-disconnect:hover { background: #fef2f2; border-color: #ef4444 !important; }
+.sync-input { width: 200px; padding: 9px 14px; border-radius: 10px; border: 1.5px solid #e5e7eb; font-size: 16px; font-family: monospace; letter-spacing: 4px; text-align: center; text-transform: uppercase; }
+body.dark .sync-input { background: #1a2744; border-color: #0f3460; color: #e0e0e0; }
+.sync-toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
+
+/* ===== Member Tags (T3-3) ===== */
+.member-tag-chip { display: inline-block; background: #ede9fe; color: #6d28d9; font-size: 10px; font-weight: 600; padding: 1px 7px; border-radius: 8px; margin: 1px; }
+.dropout-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+.referral-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; margin-left: 4px; cursor: pointer; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+
+/* Dark mode: T2 features */
+body.dark .smart-reasons { border-top-color: #0f3460; }
+body.dark .smart-reasons-toggle { color: #8899aa; }
+body.dark .smart-reason-name { color: #e0e0e0; }
+body.dark .smart-reason-score { background: #1a2744; color: #8899aa; }
+body.dark .smart-reason-text { color: #6b7a8d; }
+body.dark .health-high { background: #064e3b; color: #6ee7b7; }
+body.dark .health-mid { background: #422006; color: #fbbf24; }
+body.dark .health-low { background: #450a0a; color: #fca5a5; }
+body.dark .followup-pending { background: #422006; color: #fbbf24; border-color: #78350f; }
+body.dark .followup-done { background: #064e3b; color: #6ee7b7; border-color: #065f46; }
+body.dark .btn-csv-import { background: #1a2744; color: #a78bfa; border-color: #4c1d95; }
+body.dark .member-tag-chip { background: #2e1065; color: #c4b5fd; }
+body.dark .dropout-badge { background: #450a0a; color: #fca5a5; border-color: #7f1d1d; }
+body.dark .referral-badge { background: #1e3a5f; color: #93c5fd; border-color: #1e40af; }
+</style>
+</head>
+<body>
+
+<div class="bni-header">
+  <span class="bni-logo">BNI</span>
+  <span class="bni-subtitle">1-2-1 Wheel &mdash; กงล้อจับคู่<span id="syncDot" class="sync-dot disconnected" style="display:none" title="Cloud Sync"></span></span>
+  <button class="dark-mode-btn" id="darkModeBtn" onclick="toggleDarkMode()" title="Dark Mode">&#127769;</button>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('spin')"><span class="tab-icon">&#9881;</span>หมุนวงล้อ</button>
+  <button class="tab-btn" onclick="switchTab('history')"><span class="tab-icon">&#128203;</span>ประวัติ</button>
+  <button class="tab-btn" onclick="switchTab('summary')"><span class="tab-icon">&#128202;</span>สรุปข้อมูล</button>
+  <button class="tab-btn" onclick="switchTab('members')"><span class="tab-icon">&#128101;</span>จัดการสมาชิก</button>
+</div>
+
+<div id="tab-spin" class="tab-content active">
+  <div id="poolStatus" class="pool-status"></div>
+  <div class="wheels-container" id="wheelsContainer">
+    <!-- Wheels are built dynamically by rebuildWheelCanvases() -->
+  </div>
+  <div class="spin-btn-container">
+    <button id="spinBtn" onclick="startSpin()">หมุน!</button>
+    <button id="spinAllBtn" onclick="startSpinAll()">หมุนทั้งหมด</button>
+    <button id="simulateBtn" onclick="simulateSpin()">จำลอง</button>
+    <button id="resetPoolBtn" onclick="resetPool()">รีเซ็ตรอบ</button>
+  </div>
+  <div id="spinStatus" class="spin-status"></div>
+  <div id="resultsArea" class="results-area"></div>
+</div>
+
+<div id="tab-history" class="tab-content">
+  <div class="history-toolbar">
+    <input type="text" id="historySearch" placeholder="ค้นหาชื่อ..." oninput="resetHistoryPagination();renderHistory()">
+    <input type="date" id="historyDateFrom" onchange="resetHistoryPagination();renderHistory()" title="จากวันที่">
+    <input type="date" id="historyDateTo" onchange="resetHistoryPagination();renderHistory()" title="ถึงวันที่">
+    <span id="unconfirmedBadge"></span>
+    <div class="toolbar-spacer"></div>
+    <button class="btn-bulk-action btn-confirm-all" onclick="confirmAllHistory()">ยืนยันทั้งหมด</button>
+    <button class="btn-bulk-action btn-delete-all" onclick="deleteAllHistory()">ลบประวัติทั้งหมด</button>
+  </div>
+  <div class="history-list" id="historyList"></div>
+</div>
+
+<div id="tab-summary" class="tab-content">
+  <div id="dashboardSection" class="kpi-dashboard"></div>
+  <div class="summary-cards" id="summaryCards"></div>
+  <div class="summary-table-container">
+    <h3>สถิติรายบุคคล</h3>
+    <div class="filter-bar">
+      <div class="filter-bar-row">
+        <select id="filterType" onchange="renderSummary()">
+          <option value="all">ทั้งหมด</option>
+          <option value="LT">LT</option>
+          <option value="MEMBER">MEMBER</option>
+          <option value="never">ยังไม่เคยถูกจับคู่</option>
+          <option value="not-met-by">ยังไม่เคยเจอกับ...</option>
+        </select>
+        <select id="filterNotMetBy" onchange="renderSummary()" style="display:none"></select>
+        <input type="text" id="filterSearch" placeholder="ค้นหาชื่อ..." oninput="renderSummary()">
+        <button class="btn-clear-filter" onclick="clearSummaryFilters()">ล้างตัวกรอง</button>
+      </div>
+      <div class="filter-bar-row">
+        <input type="date" id="filterDateFrom" onchange="renderSummary()" title="จากวันที่">
+        <input type="date" id="filterDateTo" onchange="renderSummary()" title="ถึงวันที่">
+        <label style="font-size:13px;color:#666;display:flex;align-items:center;gap:4px;">
+          <input type="checkbox" id="filterConfirmedOnly" onchange="renderSummary()"> เฉพาะยืนยันแล้ว
+        </label>
+        <label style="font-size:13px;color:#666;display:flex;align-items:center;gap:4px;">
+          เป้าหมาย/เดือน: <input type="number" id="goalMonthlyTarget" class="goal-input" min="1" max="30" value="4" onchange="onGoalChange()">
+        </label>
+        <div style="flex:1"></div>
+        <button class="export-btn" onclick="exportCSV()">ส่งออก CSV</button>
+        <button class="export-btn" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);margin-left:6px" onclick="showMonthlyReport()">สรุปรายเดือน</button>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>ชื่อ</th><th>ประเภท</th><th>บริษัท</th><th>จำนวนครั้ง</th><th>% เข้าร่วม</th><th>สุขภาพ</th><th>เป้าหมาย</th><th>จับคู่กับ</th></tr></thead>
+      <tbody id="summaryBody"></tbody>
+    </table>
+  </div>
+  <div id="heatmapSection"></div>
+</div>
+
+<div id="tab-members" class="tab-content">
+  <div class="members-mgmt">
+    <div class="members-stats" id="membersStats"></div>
+    <div class="backup-toolbar">
+      <button class="btn-backup" onclick="exportBackup()">สำรองข้อมูล</button>
+      <button class="btn-restore" onclick="document.getElementById('backupFileInput').click()">กู้คืนข้อมูล</button>
+      <button class="btn-csv-import" onclick="document.getElementById('csvFileInput').click()">นำเข้า CSV</button>
+      <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="importCSVMembers(event)">
+    </div>
+    <div class="members-toolbar">
+      <div class="filter-bar-row">
+        <select id="membersFilterType" onchange="renderMembersTab()">
+          <option value="all">ทั้งหมด</option>
+          <option value="LT">LT</option>
+          <option value="MEMBER">MEMBER</option>
+        </select>
+        <input type="text" id="membersSearch" placeholder="ค้นหาชื่อ / บริษัท..." oninput="renderMembersTab()">
+      </div>
+      <div class="filter-bar-row">
+        <button class="btn-add-member" onclick="showAddMemberForm()">+ เพิ่มสมาชิก</button>
+        <button class="btn-reset-absent" onclick="resetAllAbsent()">รีเซ็ตสถานะทั้งหมด</button>
+        <div style="flex:1"></div>
+        <button class="btn-reset-members" onclick="resetMembersToDefault()">รีเซ็ตเป็นค่าเริ่มต้น</button>
+      </div>
+    </div>
+    <table class="members-table">
+      <thead><tr><th><input type="checkbox" class="select-all-checkbox" id="selectAllAttendance" onchange="toggleSelectAllAttendance(this)" title="เลือกทั้งหมด" checked></th><th>ชื่อเล่น</th><th>ชื่อ-สกุล</th><th>ประเภท</th><th>บริษัท</th><th>ธุรกิจ (LCD)</th><th>แท็ก</th><th></th></tr></thead>
+      <tbody id="membersBody"></tbody>
+    </table>
+
+    <!-- Pair Rules Section (Feature F) -->
+    <div class="pair-rules-section" id="pairRulesSection">
+      <h3>กฎจับคู่ (ล็อค / ห้ามจับคู่)</h3>
+      <div class="pair-rules-list" id="pairRulesList"></div>
+      <button class="btn-add-rule" onclick="showAddPairRuleForm()">+ เพิ่มกฎจับคู่</button>
+    </div>
+
+    <!-- Cloud Sync Section (Feature H) -->
+    <div class="sync-section" id="syncSection">
+      <h3>Cloud Sync (Firebase)</h3>
+      <div id="syncContent"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Member Form Overlay -->
+<div class="member-form-overlay" id="memberFormOverlay">
+  <div class="member-form">
+    <h3 id="memberFormTitle">เพิ่มสมาชิกใหม่</h3>
+    <label>ชื่อ-สกุล *</label>
+    <input type="text" id="formName" placeholder="ชื่อ นามสกุล">
+    <label>ชื่อเล่น *</label>
+    <input type="text" id="formNickname" placeholder="ชื่อเล่น">
+    <label>ประเภท</label>
+    <select id="formType">
+      <option value="MEMBER">MEMBER</option>
+      <option value="LT">LT</option>
+    </select>
+    <label>บริษัท</label>
+    <input type="text" id="formCompany" placeholder="ชื่อบริษัท">
+    <label>ประเภทธุรกิจ (LCD)</label>
+    <input type="text" id="formLcd" placeholder="ประเภทธุรกิจ">
+    <label>แท็ก (คั่นด้วย ,)</label>
+    <input type="text" id="formTags" placeholder="เช่น ก่อสร้าง, อาหาร, IT">
+    <div class="form-btns">
+      <button class="btn-form-save" onclick="saveMember()">บันทึก</button>
+      <button class="btn-form-cancel" onclick="hideMemberForm()">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Inverse View Modal -->
+<div class="member-detail-modal" id="memberDetailModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="modalMemberName"></h3>
+      <button class="modal-close" onclick="closeMemberDetailModal()">&times;</button>
+    </div>
+    <div class="modal-body" id="modalMemberBody"></div>
+  </div>
+</div>
+
+<!-- Hidden file input for backup restore -->
+<input type="file" id="backupFileInput" accept=".json" style="display:none" onchange="importBackup(event)">
+
+<!-- Heatmap tooltip -->
+<div class="heatmap-tooltip" id="heatmapTooltip"></div>
+
+<!-- Pair Rule Form Overlay (Feature F) -->
+<div class="rule-form-overlay" id="ruleFormOverlay">
+  <div class="rule-form">
+    <h3>เพิ่มกฎจับคู่</h3>
+    <label>ประเภทกฎ</label>
+    <select id="ruleType">
+      <option value="exclude">ห้ามจับคู่กัน</option>
+      <option value="lock">ล็อคคู่ (จับคู่เสมอ)</option>
+    </select>
+    <label>สมาชิกคนที่ 1</label>
+    <select id="ruleMember1"></select>
+    <label>สมาชิกคนที่ 2</label>
+    <select id="ruleMember2"></select>
+    <label>เหตุผล (ไม่บังคับ)</label>
+    <input type="text" id="ruleReason" placeholder="เหตุผล...">
+    <div class="form-btns">
+      <button class="btn-form-save" onclick="savePairRule()">บันทึก</button>
+      <button class="btn-form-cancel" onclick="hideRuleForm()">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Notes Form Overlay (Feature B) -->
+<div class="notes-form-overlay" id="notesFormOverlay">
+  <div class="notes-form">
+    <h3 id="notesFormTitle">บันทึกการพบกัน</h3>
+    <textarea class="notes-textarea" id="notesTextarea" placeholder="บันทึกผลการพบกัน เช่น หัวข้อที่คุยกัน, referral ที่ให้, follow-up..."></textarea>
+    <div class="form-btns">
+      <button class="btn-form-save" style="background:linear-gradient(135deg,#2563eb,#1d4ed8)" onclick="saveNotes()">บันทึก</button>
+      <button class="btn-form-cancel" onclick="hideNotesForm()">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Monthly Report Modal (T3-1) -->
+<div class="member-detail-modal" id="monthlyReportModal">
+  <div class="modal-content" style="max-width:700px">
+    <div class="modal-header" style="background:linear-gradient(135deg,#7c3aed,#6d28d9)">
+      <h3>สรุปรายเดือน</h3>
+      <button class="modal-close" onclick="closeMonthlyReport()">&times;</button>
+    </div>
+    <div class="modal-body" id="monthlyReportBody" style="font-size:13px;"></div>
+    <div style="padding:0 28px 20px;display:flex;gap:8px">
+      <button onclick="printMonthlyReport()" style="flex:1;padding:10px;border-radius:10px;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border:none;font-weight:600;cursor:pointer;font-size:14px">พิมพ์</button>
+      <button onclick="closeMonthlyReport()" style="flex:1;padding:10px;border-radius:10px;background:#f3f4f6;color:#6b7280;border:none;font-weight:600;cursor:pointer;font-size:14px">ปิด</button>
+    </div>
+  </div>
+</div>
+
+<!-- Share Toast (Feature A) -->
+<div class="share-toast" id="shareToast">คัดลอกแล้ว!</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+// ==================== DEFAULT DATA (85 members) ====================
+const DEFAULT_LT = [
+  { id: 3, name: 'ธัช ชีวเสถียรชัย', nickname: 'อะตอม', type: 'LT', company: 'บจก. ชัยสวัสดิ์มอเตอร์ไบค์', lcd: 'รถจักรยานยนต์ฮอนด้า' },
+  { id: 5, name: 'สุชาติ เอกไพฑูรย์', nickname: 'โอ๋', type: 'LT', company: 'บจก. เคเอสเค แอคเคาน์ติ้ง', lcd: 'สำนักงานบัญชี และ ผู้สอบบัญชี' },
+  { id: 7, name: 'วราพงษ์ เกียรติวีรวัฒนา', nickname: 'ป้อม', type: 'LT', company: 'บจก. ดีไซน์งาม ครีเอชั่น', lcd: 'ให้เช่าอุปกรณ์จัดอีเวนท์' },
+  { id: 13, name: 'เจนวิทย์ เวียงยศ', nickname: 'น็อค', type: 'LT', company: 'บจก.ซีเคียวริตี้ แอนด์ ซิสเต็ม', lcd: 'จำหน่าย และติดตั้งกล้องวงจรปิด, สัญญานเตือนภัย' },
+  { id: 27, name: 'สิริภพ นิธิวัฒนศักดิ์', nickname: 'บอส', type: 'LT', company: 'บจก. ขอนแก่นคลังไม้ไทย (1989)', lcd: 'ขายไม้' },
+  { id: 28, name: 'ณัฐนันท์ ปัตแวว', nickname: 'อุ้ง', type: 'LT', company: 'บจก. กรุงเทพประกันภัย', lcd: 'ประกันวินาศภัย Non-motor' },
+  { id: 30, name: 'ศุภรัตน์ แก้วกุลชัย', nickname: 'ย้ง', type: 'LT', company: 'ขอนแก่นดีไซน์ผ้าม่าน', lcd: 'ผ้าม่าน มู่ลี่ วอลเปเปอร์ ตกแต่งภายใน' },
+  { id: 42, name: 'ปรัชญา วงษ์นาคเพ็ชร์', nickname: 'แบงค์', type: 'LT', company: 'บจก. อินเตอร์ วอเตอร์ ทรีทเม้นท์', lcd: 'ผลิตและติดตั้ง หอถังเหล็กเก็บน้ำ' },
+  { id: 44, name: 'พชร ชินอ่อน', nickname: 'แทน', type: 'LT', company: 'บจก. น่าอยู่คอร์ปอเรชั่น', lcd: 'แพลตฟอร์มหาที่อยู่อาศัย' },
+  { id: 45, name: 'ทิพานัน มาลารัตน์', nickname: 'อุ้ม', type: 'LT', company: 'หจก. แอมคูลแอร์', lcd: 'ออกแบบ จำหน่าย ติดตั้งระบบปรับอากาศ VRV VRF' },
+  { id: 46, name: 'กฤษดิ์บดิณทร์ จิรภัคพร', nickname: 'กฤษ', type: 'LT', company: 'บจก. กินดี ฟู้ด ซัพพลาย', lcd: 'ขายเนื้อหมู ปลีก/ส่ง' },
+  { id: 47, name: 'ธีรชากันต์ รัตนดิลก ณ ภูเก็ต', nickname: 'นัท', type: 'LT', company: 'บจก. ไฉไล เดคเคอเรท แอนด์ ดีไซน์', lcd: 'ออกแบบและจัดงานอีเวนต์ทุกประเภท' },
+  { id: 52, name: 'พรนภา ไขแสง', nickname: 'หนึ่ง', type: 'LT', company: 'หจก. โรงคั่วชูใจ', lcd: 'COFFEE SUPPLY' },
+  { id: 53, name: 'ปาล ศรีจันดารี', nickname: 'ปาล', type: 'LT', company: 'Pallor Training', lcd: 'ธุรกิจอบรมและการโค้ช' },
+  { id: 55, name: 'วัชรินทร์ แก้วม่วง', nickname: 'วุทธ', type: 'LT', company: 'บจก. ธันเดอร์ โซลูชั่น', lcd: 'พัฒนาระบบโซลูชั่น และตรวจสลิป' },
+  { id: 61, name: 'ธัชชวริณทร์ ศรีสุภธรสิริ', nickname: 'ชัช', type: 'LT', company: 'บจก. โปรสมาร์ท ริช', lcd: 'สร้างโรงงาน คลังสินค้า โชว์รูม' },
+  { id: 62, name: 'วชรพร สุวรรณแสน', nickname: 'อ้อ', type: 'LT', company: 'บจก. โปรสมาร์ท รูฟ 65', lcd: 'หลังคาเหล็ก ฉนวนพียูโฟม' },
+  { id: 67, name: 'อภิรัฐ หงส์พูนพิพัฒน์', nickname: 'เจมส์', type: 'LT', company: 'บจก. สหชัย อลูมินั่มอัลลอย', lcd: 'ประตู รั้วโลหะ และงานประติมากรรมอัลลอย' },
+  { id: 77, name: 'ลลิตา จตุพรประเสริฐ', nickname: 'แก้ว', type: 'LT', company: 'บจก. ถูกใจแอร์ การไฟฟ้า', lcd: 'จำหน่ายอุปกรณ์ไฟฟ้า' }
+];
+
+const DEFAULT_MEMBERS = [
+  { id: 1, name: 'ชลิดา ชัยตรัยภพ', nickname: 'ไพ', type: 'MEMBER', company: 'บจก. ทูซอร์ เดคคอร์เรชั่น', lcd: 'ตัวแทนจำหน่ายแผ่นพื้น SPC และ แผ่นผนัง WPC' },
+  { id: 2, name: 'กิติพัฒน์ เสถียรวัฒนาเดชา', nickname: 'เป้ย', type: 'MEMBER', company: 'บจก. SQA', lcd: 'ประกันวินาศภัย Motor' },
+  { id: 4, name: 'ชวภณ ถาวรสำเร็จกิจ', nickname: 'จุ้ย', type: 'MEMBER', company: 'บจก. เจบีคูลเทค', lcd: 'จำหน่าย,ติดตั้งฟิล์มกรองแสง และฟิล์มเซฟตี้' },
+  { id: 6, name: 'พิชญ์ยาภร กุลเจริญพงศ์', nickname: 'หมูแฮม', type: 'MEMBER', company: 'บจก. เปรมปรีดิ์ ศูนย์รวมวัสดุ', lcd: 'จำหน่ายวัสดุก่อสร้าง SCG บุญถาวร' },
+  { id: 8, name: 'วรุณ จาวลา', nickname: 'วี', type: 'MEMBER', company: 'LUFT ATMEN', lcd: 'นวัตกรรมเครื่องฟอกอากาศ' },
+  { id: 9, name: 'รัตติกร จุรีมาศ', nickname: 'แคร์', type: 'MEMBER', company: 'บจก. ประตูชัย ปิโตรเลียม', lcd: 'จำหน่ายพลังงานน้ำมันเชื้อเพลิง' },
+  { id: 10, name: 'คณิทธ์ เนียรวิฑูรย์', nickname: 'เอ็ด', type: 'MEMBER', company: 'บจก. เค พี เดคคอร์', lcd: 'สถาปนิก เฟอร์นิเจอร์' },
+  { id: 11, name: 'กรกต แนนเกลี้ยง', nickname: 'หมู', type: 'MEMBER', company: 'บจก. หมูสวรรค์ บิวดิ้งโฮม', lcd: 'ผู้รับเหมาภาครัฐ ก่อสร้างอาคาร' },
+  { id: 12, name: 'มงคล เลิศอุทัย', nickname: 'เป้', display: 'เป้ (มงคล)', type: 'MEMBER', company: 'บจก. แอล คอน', lcd: 'เสาเข็ม แผ่นพื้น' },
+  { id: 14, name: 'อาภาภรณ์ คำประชม', nickname: 'มด', type: 'MEMBER', company: 'บจก.หลักทรัพย์ พาย (มหาชน)', lcd: 'ผู้ให้บริการด้านการเงิน การลงทุน' },
+  { id: 15, name: 'วิทยา เทวโรด', nickname: 'โก้', type: 'MEMBER', company: 'หจก.ออร์โก้ ฟู้ด 2426', lcd: 'จำหน่ายชิ้นส่วนไก่สด ปลีกและส่ง' },
+  { id: 16, name: 'สิริวุธ ลิ้มประเสริฐศักดิ์', nickname: 'แบ๊งค์', type: 'MEMBER', company: 'บจก. สกายไฮ เซอร์วิส', lcd: 'บริการซักผ้าอุตสาหกรรมครบวงจร' },
+  { id: 17, name: 'สาทิตย์ สีหามาตย์', nickname: 'สาทิตย์', type: 'MEMBER', company: 'บจก. รักษาความปลอดภัยอนุพล อินเตอร์กรุ๊ป', lcd: 'ให้บริการหน่วยรักษาความปลอดภัย' },
+  { id: 18, name: 'มนัสชนก อริยะเดช', nickname: 'เฟิร์น', type: 'MEMBER', company: 'บจก. สเปซ แอนด์ โค 1988', lcd: 'Marketing Online Agency' },
+  { id: 19, name: 'ก้องเกียรติ ลีไตรรงค์', nickname: 'ตง', type: 'MEMBER', company: 'หจก.ขอนแก่นมาธอน', lcd: 'จำหน่ายเครื่องดนตรีไทย-สากล' },
+  { id: 20, name: 'อัจฉราภรณ์ อัศวพัฒนากูล', nickname: 'อัจ', type: 'MEMBER', company: 'บจก. เอไอเอ', lcd: 'ที่ปรึกษาการเงิน/วางแผนภาษี' },
+  { id: 21, name: 'ลักขณา คมปรัชญา', nickname: 'บุ๋ม', type: 'MEMBER', company: 'บจก. เค มาสคอน', lcd: 'รับสร้างบ้าน 10 ล้านบาทขึ้นไป' },
+  { id: 22, name: 'ณรงค์เวทย์ ชนะเกียรติ', nickname: 'ขลุ่ย', display: 'ขลุ่ย (ณรงค์เวทย์)', type: 'MEMBER', company: 'Releaf Garden', lcd: 'รับออกแบบจัดสวน ตกแต่งสวน ครบวงจร' },
+  { id: 23, name: 'กฤษดากร อภิชนตระกูล', nickname: 'บาส', type: 'MEMBER', company: 'บจก. เคี้ยงเทรดดิ้ง', lcd: 'จำหน่ายอินกรีเดียนท์อาหารและเครื่องดื่ม' },
+  { id: 24, name: 'เปรมยุดา ศิริทองสุข', nickname: 'มีน', type: 'MEMBER', company: 'CSM Shop', lcd: 'จำหน่ายอะไหล่รถจักรยานยนต์ปลีก-ส่ง' },
+  { id: 25, name: 'ณัฐกิตติ์ คำพิบูลย์', nickname: 'นิวส์', type: 'MEMBER', company: 'บจก. เค.พี.บี. ดีไซน์ แอนด์ เซอร์วิส', lcd: 'รับเหมาก่อสร้าง ต่อเติม รีโนเวท' },
+  { id: 26, name: 'ภัทปฤณ แสงจันทร์', nickname: 'อิ๋ม', type: 'MEMBER', company: 'บจก. 14 สติ๊กเกอร์', lcd: 'ขายปลีก-ส่งสติ๊กเกอร์' },
+  { id: 29, name: 'กิตติศักดิ์ วงศ์จารุวัฒน์', nickname: 'กอล์ฟ', display: 'กอล์ฟ (กิตติศักดิ์)', type: 'MEMBER', company: 'บจก. เคเอสแอล แอนด์ วอริกซ์', lcd: 'จำหน่ายเสื้อโปโล เสื้อกีฬา' },
+  { id: 31, name: 'เจษฎา จันทร', nickname: 'ขลุ่ย', display: 'ขลุ่ย (เจษฎา)', type: 'MEMBER', company: 'บจก. ยศมีบุญ3659', lcd: 'กำจัดปลวก' },
+  { id: 32, name: 'พชร โนนใหม่', nickname: 'ไฉ้', type: 'MEMBER', company: 'ห้างทองกาญจนาภิเษก', lcd: 'จำหน่ายทองแท่ง และรูปพรรณ' },
+  { id: 33, name: 'พรยุพรรณ จตุรเจริญคุณ', nickname: 'ก้อย', type: 'MEMBER', company: 'Oishi Foods Co., Ltd.', lcd: 'ผลิตเบเกอรี่' },
+  { id: 34, name: 'นลินี แซ่โอ้ว', nickname: 'นุ้ย', type: 'MEMBER', company: 'บจก.อิสานพิมานกรุ๊ป', lcd: 'ผู้พัฒนาอสังหาริมทรัพย์บ้านเดี่ยว' },
+  { id: 35, name: 'กชกร ติยวัฒนาโรจน์', nickname: 'ก็อปปี้', type: 'MEMBER', company: 'หจก. เคเค เมด เทรดดิ้ง', lcd: 'จำหน่ายเครื่องมือแพทย์ประเภทโฮมแคร์' },
+  { id: 36, name: 'อภิชาติ เรืองจิรวานนท์', nickname: 'แบงก์', type: 'MEMBER', company: 'บจก. ทีไน อินทิเกรทชั่น', lcd: 'ซอฟต์แวร์สำเร็จรูปสำหรับธุรกิจบริการ' },
+  { id: 37, name: 'ธันย์รดา ธนกิตต์พิมุกข์', nickname: 'เตย', type: 'MEMBER', company: 'บจก. เดอะสมาร์ทดีเวลลอปเม้นท์', lcd: 'ออกแบบติดตั้งโซล่าเซลล์ที่อยู่อาศัย' },
+  { id: 38, name: 'อัณณ์ตินา ทิวาวัฒนกุลรัตน์', nickname: 'จอยซ์', type: 'MEMBER', company: 'บจก. พชร เอ็นจิเนียริ่ง แอนด์ พาวเวอร์', lcd: 'เสาเข็มเจาะ' },
+  { id: 39, name: 'ธัญญชนก เจียวก๊ก', nickname: 'ฝัน', type: 'MEMBER', company: 'บจก. ขอนแก่นผลิตภัณฑ์คอนกรีต', lcd: 'ผลิตและจำหน่ายท่อคอนกรีต' },
+  { id: 40, name: 'จรัสพร ประไพพงษ์', nickname: 'อิ๋ว', type: 'MEMBER', company: 'บจก. เอไอเอ', lcd: 'ประกันชีวิต สุขภาพ กลุ่ม Keyman' },
+  { id: 41, name: 'ณภัทร ปิยะกุลภัทร', nickname: 'ลูกหว้า', type: 'MEMBER', company: 'หจก. โฮมคลิ๊ก เรียลเอสเตท', lcd: 'นายหน้าอสังหาริมทรัพย์' },
+  { id: 43, name: 'ยุทธนา ไพคำนาม', nickname: 'โบ้', type: 'MEMBER', company: 'A house construction', lcd: 'รับสร้างบ้านขนาด 3-10 ล้าน' },
+  { id: 48, name: 'วิศรุต พรศรีเมตต์', nickname: 'นุ๊ก', type: 'MEMBER', company: 'บจก. เพ็ญพรินติ้ง', lcd: 'สื่อสิ่งพิมพ์' },
+  { id: 49, name: 'กังวาน เหล่าวิโรจนกุล', nickname: 'กัง', type: 'MEMBER', company: 'บจก. บุญนำพาอีสาน', lcd: 'รับจัดงานบุญ' },
+  { id: 50, name: 'บุษกร กสิกิจวรกุล', nickname: 'เก๋', display: 'เก๋ (บุษกร)', type: 'MEMBER', company: 'หจก. ทรี ที 2009 ทรานสปอร์ต', lcd: 'ขายหิน ทราย ลูกรัง' },
+  { id: 51, name: 'อทิตยา ศรีจันทร์', nickname: 'หนุ่ย', type: 'MEMBER', company: 'บจก. 159 แม่บ้าน แรงงาน ขอนแก่น', lcd: 'บริษัทแม่บ้าน รับทำความสะอาด' },
+  { id: 54, name: 'สิทธิศักดิ์ เล้าเจริญวาณิชย์', nickname: 'แป๊บ', type: 'MEMBER', company: 'บจก. ศรีชัย โฮม เอ็กเพรส 2008', lcd: 'จำหน่ายสีเคมีภัณฑ์ ประตูหน้าต่าง สุขภัณฑ์' },
+  { id: 56, name: 'จุไรรัตน์ ก่อทรัพย์', nickname: 'อพอลโล่', type: 'MEMBER', company: 'บจก.สหมอเตอร์ออโต้พาร์ท', lcd: 'จำหน่ายแบตเตอรี่รถยนต์ และอะไหล่' },
+  { id: 57, name: 'พิเชฐ ลี้อนันด์ศักดิ์ศิริ', nickname: 'อี๊ด', type: 'MEMBER', company: 'บจก.เด็กไทยค้าข้าว เทรดดิ้ง', lcd: 'จำหน่ายเครื่องดื่มแอลกอฮอล์' },
+  { id: 58, name: 'วรวิทย์ วงษ์ชัยเพ็ง', nickname: 'บ๊อบบี้', type: 'MEMBER', company: 'บจก. ประชาพงษ์ ฟู้ดส์', lcd: 'อาหารทะเลแช่แข็ง' },
+  { id: 59, name: 'ศุภวัทน์ ประเสริฐรุ่งเรือง', nickname: 'เอิร์ธชี่', type: 'MEMBER', company: 'บจก. ภิญญาคอนสตรัคชั่น', lcd: 'รับเหมาต่อเติม' },
+  { id: 60, name: 'ภาธสุ ดวงมาลา', nickname: 'ปั๊บ', type: 'MEMBER', company: 'บจก. นอร์ทอีสต์ เทค คอร์ปเรชั่น', lcd: 'เว็บไซต์บริษัท' },
+  { id: 63, name: 'ณภัทร เอื้อมศศิธร', nickname: 'กอล์ฟ', display: 'กอล์ฟ (ณภัทร)', type: 'MEMBER', company: 'บจก. สุณภัทร เทรดดิ้ง', lcd: 'รับเหมางานวางท่อประปา' },
+  { id: 64, name: 'พัทธนันท์ ทวีแสงสกุลไทย', nickname: 'เอิร์ธ', type: 'MEMBER', company: 'บจก. รวมทวี ขอนแก่น', lcd: 'รถบรรทุกฮีโน่' },
+  { id: 65, name: 'วงศธร เรืองโชติพัฒน์', nickname: 'โอม', type: 'MEMBER', company: 'หจก. มิตรภาพสรรพกิจฐ์', lcd: 'ติดตั้งกระจก-อลูมิเนียม' },
+  { id: 66, name: 'วงศ์วริศ วรโชติพงศ์สุข', nickname: 'ตี๋', display: 'ตี๋ (วงศ์วริศ)', type: 'MEMBER', company: 'บจก. อาร์วีที แมชชีน โปรดักส์', lcd: 'จำหน่าย-ให้เช่าเครื่องถ่ายเอกสาร' },
+  { id: 68, name: 'ณัฐพนธ์ เมืองสอน', nickname: 'อ้น', type: 'MEMBER', company: 'บจก. เอ็นพีเอ็ม เอ็นจิเนียริ่ง', lcd: 'รับเหมาระบบไฟฟ้าอาคาร' },
+  { id: 69, name: 'ธีรยุทธ ชุมหิน', nickname: 'แขก', type: 'MEMBER', company: 'บจก. โจ๋นแซ่บ', lcd: 'ร้านอาหารอีสาน' },
+  { id: 70, name: 'ปิยพันธ์ ศรีธาตุ', nickname: 'เป้', display: 'เป้ (ปิยพันธ์)', type: 'MEMBER', company: 'บจก. สุดปรีดี', lcd: 'IT Solutions ระบบเครือข่าย' },
+  { id: 71, name: 'โกสินทร์ วีระมโนกุล', nickname: 'จอม', type: 'MEMBER', company: 'บจก. 955คอนสตรัคชั่น', lcd: 'อลูมิเนียมคอมโพสิท' },
+  { id: 72, name: 'มาฆะ แก่นศักดิ์ศิริ', nickname: 'ตี๋', display: 'ตี๋ (มาฆะ)', type: 'MEMBER', company: 'บจก. ไทยพิพัฒน์โซลูชั่น', lcd: 'จำหน่ายเหล็กเส้น เหล็กรูปพรรณ เครื่องมือช่าง' },
+  { id: 73, name: 'สัคพงศ์ วรานุพร', nickname: 'เก่ง', type: 'MEMBER', company: 'บจก. ดีเอส ทเวนตี้วัน', lcd: 'บริการขายและเช่า เครื่องทำน้ำแข็ง' },
+  { id: 74, name: 'ศุภกิจ บัณฑรวรรณ', nickname: 'อ๋อง', type: 'MEMBER', company: 'Prime Beverage Co., Ltd.', lcd: 'จำหน่าย และผลิตน้ำดื่ม' },
+  { id: 75, name: 'ธนัท โฆษะวิสุทธิ์', nickname: 'ธนัท', type: 'MEMBER', company: 'บจก. โฆษะ โฮลดิ้ง', lcd: 'โรงแรม' },
+  { id: 76, name: 'วุฒิภัทร ดวงสินธ์', nickname: 'โอ้ต', type: 'MEMBER', company: 'บจก. มิวชั่น', lcd: 'ผู้พัฒนาระบบสนับสนุนเชิงธุรกิจ ERP' },
+  { id: 78, name: 'อนุชา หาระภูมิ', nickname: 'ไวน์', type: 'MEMBER', company: 'De Dew Wellness Clinic', lcd: 'คลินิคเสริมความงามปรับรูปหน้า' },
+  { id: 79, name: 'กลวัชร จงฤาชา', nickname: 'นิว', type: 'MEMBER', company: 'บจก. นิวอินโนเวชั่น', lcd: 'กำแพงกันดิน' },
+  { id: 80, name: 'อิทธิพัทธ์ อรุณรุ่งไพศาล', nickname: 'แพน', type: 'MEMBER', company: 'บจก.สามเหลี่ยมออร์โต้', lcd: 'รับซื้อ-ขาย รถยนต์มือ 2' },
+  { id: 81, name: 'บัณฑิตา ศุภกิจเรืองโรจน์', nickname: 'เฟริสท์', type: 'MEMBER', company: 'ศรีตารักษ์ คลีนิก', lcd: 'คลีนิกศัลยกรรมเสริมความมั่นใจ' },
+  { id: 82, name: 'สุกัญญา สิงหวรรณุรัตน์', nickname: 'สุ', type: 'MEMBER', company: 'CLUB88 car detailing', lcd: 'car detailing' },
+  { id: 83, name: 'เรวดี เฮงประเสริฐ', nickname: 'เก๋', display: 'เก๋ (เรวดี)', type: 'MEMBER', company: 'บจก. ขอนแก่นเซรามิค', lcd: 'เครื่องปั้นเซรามิค' },
+  { id: 84, name: 'ปาริตา ฉายรังษี', nickname: 'พุ่ม', type: 'MEMBER', company: 'บจก. สิมหลวง เฟอร์นิเจอร์', lcd: 'บิ้วอินเรสซิเด้นเชียล' },
+  { id: 85, name: 'วรกฤต มะ', nickname: 'โอ๊ต', type: 'MEMBER', company: 'บจก. ชาเลต โฮม ดีเวลลอปเม้นต์', lcd: 'รับเหมาต่อเติม Commercial' }
+];
+
+// ==================== MEMBER DATA (localStorage) ====================
+const MEMBERS_KEY = 'bni121_members';
+const SESSION_KEY = 'bni121_session';
+const STORAGE_KEY = 'bni121_data';
+
+let ltMembers = [];
+let regularMembers = [];
+
+function loadMemberData() {
+  try {
+    const raw = localStorage.getItem(MEMBERS_KEY);
+    if (raw) {
+      const data = JSON.parse(raw);
+      ltMembers = data.lt || [];
+      regularMembers = data.members || [];
+      return;
+    }
+  } catch(e) {}
+  // First time: copy from defaults
+  ltMembers = JSON.parse(JSON.stringify(DEFAULT_LT));
+  regularMembers = JSON.parse(JSON.stringify(DEFAULT_MEMBERS));
+  saveMemberData();
+}
+
+function saveMemberData() {
+  localStorage.setItem(MEMBERS_KEY, JSON.stringify({
+    version: 1,
+    lt: ltMembers,
+    members: regularMembers
+  }));
+  if (typeof syncPush === 'function') try { syncPush(); } catch(e) {}
+}
+
+function getAllMembers() {
+  return [...ltMembers, ...regularMembers];
+}
+
+function getDisplayName(m) {
+  return m.display || m.nickname;
+}
+
+function findMemberById(id) {
+  return getAllMembers().find(m => m.id === id);
+}
+
+// ==================== SESSION / ELIMINATION POOL ====================
+let usedLtIds = new Set();
+let usedMemberIds = new Set();
+
+function loadSession() {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (raw) {
+      const data = JSON.parse(raw);
+      usedLtIds = new Set(data.usedLtIds || []);
+      usedMemberIds = new Set(data.usedMemberIds || []);
+      return;
+    }
+  } catch(e) {}
+  usedLtIds = new Set();
+  usedMemberIds = new Set();
+}
+
+function saveSession() {
+  localStorage.setItem(SESSION_KEY, JSON.stringify({
+    usedLtIds: [...usedLtIds],
+    usedMemberIds: [...usedMemberIds]
+  }));
+}
+
+// ==================== ABSENCE SYSTEM ====================
+const ABSENT_KEY = 'bni121_absent';
+let absentIds = new Set();
+
+function loadAbsent() {
+  try {
+    const raw = localStorage.getItem(ABSENT_KEY);
+    if (raw) { absentIds = new Set(JSON.parse(raw)); return; }
+  } catch(e) {}
+  absentIds = new Set();
+}
+
+function saveAbsent() {
+  localStorage.setItem(ABSENT_KEY, JSON.stringify([...absentIds]));
+}
+
+function toggleAbsent(id) {
+  if (absentIds.has(id)) absentIds.delete(id);
+  else absentIds.add(id);
+  saveAbsent();
+  renderMembersTab();
+  currentWheelCount = 0;
+  updatePoolStatus();
+  drawAllWheels();
+}
+
+function resetAllAbsent() {
+  absentIds = new Set();
+  saveAbsent();
+  renderMembersTab();
+  currentWheelCount = 0;
+  updatePoolStatus();
+  drawAllWheels();
+}
+
+function toggleSelectAllAttendance(checkbox) {
+  const allMem = getAllMembers();
+  if (checkbox.checked) {
+    // Mark all as present
+    absentIds = new Set();
+  } else {
+    // Mark all as absent
+    allMem.forEach(m => absentIds.add(m.id));
+  }
+  saveAbsent();
+  renderMembersTab();
+  currentWheelCount = 0;
+  updatePoolStatus();
+  drawAllWheels();
+}
+
+function getAvailableLT() { return ltMembers.filter(m => !usedLtIds.has(m.id) && !absentIds.has(m.id)); }
+function getAvailableMembers() { return regularMembers.filter(m => !usedMemberIds.has(m.id) && !absentIds.has(m.id)); }
+
+// ==================== SETTINGS ====================
+const SETTINGS_KEY = 'bni121_settings';
+
+function loadSettings() {
+  try {
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return { mPerGroup: 'auto', maxGroups: 3 };
+}
+
+function saveSettings(s) {
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+}
+
+function getEffectiveMPerGroup(availLTCount, availMCount) {
+  const s = loadSettings();
+  if (s.mPerGroup === 'auto') {
+    if (availLTCount === 0 || availMCount === 0) return 2;
+    return Math.max(2, Math.min(5, Math.ceil(availMCount / availLTCount)));
+  }
+  return parseInt(s.mPerGroup);
+}
+
+function getEffectiveMaxGroups() {
+  return loadSettings().maxGroups;
+}
+
+function onSettingsChange() {
+  const prev = loadSettings();
+  const s = {
+    ...prev,
+    mPerGroup: document.getElementById('settingMPerGroup').value,
+    maxGroups: parseInt(document.getElementById('settingMaxGroups').value),
+    pairMode: document.getElementById('settingPairMode') ? document.getElementById('settingPairMode').value : 'random'
+  };
+  saveSettings(s);
+  currentWheelCount = 0;
+  updatePoolStatus();
+  drawAllWheels();
+}
+
+function resetPool() {
+  if (isSpinning) return;
+  usedLtIds = new Set();
+  usedMemberIds = new Set();
+  saveSession();
+  currentResults = null;
+  currentWheelCount = 0; // Force wheel rebuild
+  document.getElementById('resultsArea').innerHTML = '';
+  document.getElementById('spinStatus').textContent = '';
+  updatePoolStatus();
+  drawAllWheels();
+}
+
+function updatePoolStatus() {
+  const availLT = getAvailableLT();
+  const availM = getAvailableMembers();
+  const totalLT = ltMembers.length;
+  const totalM = regularMembers.length;
+
+  const settings = loadSettings();
+  const membersPerGroup = getEffectiveMPerGroup(availLT.length, availM.length);
+  const maxGroups = getEffectiveMaxGroups();
+
+  // Calculate LT groups + member-only groups
+  let numLtGroups = 0;
+  if (availLT.length > 0 && availM.length > 0) {
+    numLtGroups = Math.min(maxGroups, availLT.length, Math.floor(availM.length / membersPerGroup));
+  }
+  const leftAfterLt = availM.length - numLtGroups * membersPerGroup;
+  const moSize = membersPerGroup + 1;
+  const numMoGroups = (leftAfterLt >= 2 && numLtGroups < maxGroups) ? Math.min(maxGroups - numLtGroups, Math.ceil(leftAfterLt / moSize)) : 0;
+  const numGroups = numLtGroups + numMoGroups;
+
+  const usedTotal = usedLtIds.size + usedMemberIds.size;
+  const total = totalLT + totalM;
+  const pct = total > 0 ? Math.round((usedTotal / total) * 100) : 0;
+
+  const presentLT = ltMembers.filter(m => !absentIds.has(m.id)).length;
+  const presentM = regularMembers.filter(m => !absentIds.has(m.id)).length;
+  const absentCount = absentIds.size;
+
+  let html = '<div class="pool-status-row">';
+  html += `<span class="pool-stat">LT: <b>${availLT.length}/${totalLT}</b> เหลือ</span>`;
+  html += `<span class="pool-stat">MEMBER: <b>${availM.length}/${totalM}</b> เหลือ</span>`;
+  if (availLT.length > 0) {
+    html += `<span class="pool-stat">กลุ่มละ <b>1 LT + ${membersPerGroup} M</b></span>`;
+  } else if (availM.length >= 2) {
+    html += `<span class="pool-stat" style="color:#2563eb;font-weight:600">LT หมดแล้ว — Member จับกันเอง</span>`;
+  }
+  html += '</div>';
+  if (absentCount > 0) {
+    html += `<div style="font-size:13px;color:#e8880b;margin-bottom:4px;">มาวันนี้: ${presentLT} LT, ${presentM} M | ลา: ${absentCount} คน</div>`;
+  }
+  html += `<div class="pool-bar"><div class="pool-bar-fill" style="width:${pct}%"></div></div>`;
+
+  const canSpin = numGroups > 0 || availM.length >= 2;
+  const noMore = !canSpin;
+  if (noMore && (usedLtIds.size > 0 || usedMemberIds.size > 0 || (availLT.length === 0 && availM.length <= 1))) {
+    html += '<div class="pool-complete-msg">ครบทุกคนแล้ว! กด "รีเซ็ตรอบ" เพื่อเริ่มใหม่</div>';
+    document.getElementById('spinBtn').disabled = true;
+    document.getElementById('spinAllBtn').disabled = true;
+  } else if (canSpin && numGroups < maxGroups) {
+    let partialMsg = `เหลือจับได้ ${numGroups} กลุ่ม`;
+    if (numMoGroups > 0) partialMsg += ` (${numMoGroups} กลุ่ม Member)`;
+    html += `<div class="pool-partial-msg">${partialMsg}</div>`;
+    document.getElementById('spinBtn').disabled = false;
+    document.getElementById('spinAllBtn').disabled = false;
+  } else {
+    document.getElementById('spinBtn').disabled = !canSpin;
+    document.getElementById('spinAllBtn').disabled = !canSpin;
+  }
+
+  // Settings row
+  const mAuto = settings.mPerGroup === 'auto';
+  const autoLabel = mAuto ? ' (คำนวณได้ ' + membersPerGroup + ')' : '';
+  const pairMode = settings.pairMode || 'random';
+  html += '<div class="spin-settings">';
+  html += `<label>สมาชิกต่อกลุ่ม: <select id="settingMPerGroup" onchange="onSettingsChange()">
+    <option value="auto"${settings.mPerGroup === 'auto' ? ' selected' : ''}>อัตโนมัติ${autoLabel}</option>
+    <option value="2"${settings.mPerGroup === '2' ? ' selected' : ''}>2</option>
+    <option value="3"${settings.mPerGroup === '3' ? ' selected' : ''}>3</option>
+    <option value="4"${settings.mPerGroup === '4' ? ' selected' : ''}>4</option>
+    <option value="5"${settings.mPerGroup === '5' ? ' selected' : ''}>5</option>
+  </select></label>`;
+  html += `<label>กลุ่มต่อรอบ: <select id="settingMaxGroups" onchange="onSettingsChange()">
+    <option value="1"${settings.maxGroups === 1 ? ' selected' : ''}>1</option>
+    <option value="2"${settings.maxGroups === 2 ? ' selected' : ''}>2</option>
+    <option value="3"${settings.maxGroups === 3 ? ' selected' : ''}>3</option>
+    <option value="4"${settings.maxGroups === 4 ? ' selected' : ''}>4</option>
+    <option value="5"${settings.maxGroups === 5 ? ' selected' : ''}>5</option>
+  </select></label>`;
+  html += `<label>โหมดจับคู่: <select id="settingPairMode" onchange="onSettingsChange()">
+    <option value="random"${pairMode === 'random' ? ' selected' : ''}>สุ่ม</option>
+    <option value="smart"${pairMode === 'smart' ? ' selected' : ''}>อัจฉริยะ</option>
+  </select></label>`;
+  html += '</div>';
+
+  document.getElementById('poolStatus').innerHTML = html;
+}
+
+// ==================== SPIN DATA STORAGE ====================
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return { version: 1, spins: [] };
+}
+
+function saveData(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  if (typeof syncPush === 'function') try { syncPush(); } catch(e) {}
+}
+
+// ==================== TABS ====================
+const TAB_IDS = ['spin', 'history', 'summary', 'members'];
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', TAB_IDS[i] === tab);
+  });
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  if (tab === 'spin') { updatePoolStatus(); drawAllWheels(); }
+  if (tab === 'history') { resetHistoryPagination(); renderHistory(); }
+  if (tab === 'summary') renderSummary();
+  if (tab === 'members') { renderMembersTab(); renderPairRules(); renderSyncSection(); }
+}
+
+// ==================== WHEEL DRAWING ====================
+const wheelColorSets = {
+  lt: ['#cf202e','#e8434f','#b71c28','#d9363f','#a81825','#e05560','#c4242f','#d04a52','#be2230','#e06670','#cf202e','#d9363f','#b71c28','#e8434f','#a81825','#d04a52','#c4242f','#e05560','#be2230'],
+  teal: ['#1a8a7d','#22a08f','#178272','#2bb09e','#14796d','#34b8a8','#1d9485','#28a898','#169080','#30b4a4'],
+  blue: ['#2968b2','#3578c4','#1f5a9e','#4088d0','#1a5090','#4a94d8','#2f70ba','#3b82cc','#2560a8','#458cce']
+};
+const memberArrowColors = ['#1a8a7d','#2968b2','#1a8a7d','#2968b2','#1a8a7d'];
+
+function getMemberColorSet(idx) {
+  return idx % 2 === 0 ? wheelColorSets.teal : wheelColorSets.blue;
+}
+
+let wheelAngles = { lt: 0 };
+let currentWheelCount = 0;
+
+function getCurrentMembersPerGroup() {
+  const availLT = getAvailableLT();
+  const availM = getAvailableMembers();
+  return getEffectiveMPerGroup(availLT.length, availM.length);
+}
+
+function getWheelSize(totalWheels) {
+  if (totalWheels <= 3) return 280;
+  if (totalWheels <= 4) return 220;
+  if (totalWheels <= 5) return 190;
+  return 170;
+}
+
+function rebuildWheelCanvases(mPerGroup) {
+  const totalWheels = 1 + mPerGroup;
+  if (currentWheelCount === totalWheels) return;
+  currentWheelCount = totalWheels;
+
+  const size = getWheelSize(totalWheels);
+  const container = document.getElementById('wheelsContainer');
+
+  // Preserve LT angle, reset member angles
+  const ltAngle = wheelAngles.lt || 0;
+  wheelAngles = { lt: ltAngle };
+  for (let i = 0; i < mPerGroup; i++) {
+    wheelAngles['m' + i] = 0;
+  }
+
+  let html = '';
+  // LT wheel
+  html += `<div class="wheel-wrapper">
+    <h3 class="lt-label">วงล้อ LT</h3>
+    <div class="arrow-indicator"></div>
+    <canvas id="wheelLT" width="${size}" height="${size}"></canvas>
+  </div>`;
+
+  // Member wheels
+  for (let i = 0; i < mPerGroup; i++) {
+    const labelClass = 'm-label-' + i;
+    const arrowColor = memberArrowColors[i] || '#1a8a7d';
+    html += `<div class="wheel-wrapper">
+      <h3 class="${labelClass}">วงล้อ MEMBER #${i + 1}</h3>
+      <div class="arrow-indicator" style="border-top-color:${arrowColor}"></div>
+      <canvas id="wheelM${i}" width="${size}" height="${size}"></canvas>
+    </div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+function drawWheel(canvasId, members, colorSet, currentAngle) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
+  const r = cx - 5;
+  const n = members.length;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (n === 0) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+    ctx.fillStyle = '#e0e0e0';
+    ctx.fill();
+    ctx.fillStyle = '#888888';
+    ctx.font = '14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('ว่าง', cx, cy + 5);
+    return;
+  }
+
+  const sliceAngle = (2 * Math.PI) / n;
+
+  for (let i = 0; i < n; i++) {
+    const startAngle = currentAngle + i * sliceAngle;
+    const endAngle = startAngle + sliceAngle;
+
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, startAngle, endAngle);
+    ctx.closePath();
+    ctx.fillStyle = colorSet[i % colorSet.length];
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(startAngle + sliceAngle / 2);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#fff';
+    ctx.font = n > 30 ? '9px sans-serif' : n > 15 ? '10px sans-serif' : '11px sans-serif';
+    const label = getDisplayName(members[i]);
+    ctx.fillText(label, r - 8, 3);
+    ctx.restore();
+  }
+
+  // Center circle
+  ctx.beginPath();
+  ctx.arc(cx, cy, 18, 0, 2 * Math.PI);
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+  ctx.strokeStyle = '#d5d5d5';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+function drawAllWheels() {
+  const availLT = getAvailableLT();
+  const availM = getAvailableMembers();
+  const mPerGroup = getCurrentMembersPerGroup();
+
+  rebuildWheelCanvases(mPerGroup);
+
+  drawWheel('wheelLT', availLT, wheelColorSets.lt, wheelAngles.lt);
+  for (let i = 0; i < mPerGroup; i++) {
+    drawWheel('wheelM' + i, availM, getMemberColorSet(i), wheelAngles['m' + i] || 0);
+  }
+}
+
+// ==================== SPIN LOGIC ====================
+let isSpinning = false;
+let currentResults = null;
+
+function getGroupAllIds(g) {
+  return [...(g.lt ? [g.lt.id] : []), ...g.members.map(m => m.id)];
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function pickGroups() {
+  const availLT = getAvailableLT();
+  const availM = getAvailableMembers();
+  if (availM.length < 2 && availLT.length === 0) return [];
+  if (availM.length === 0) return [];
+
+  const membersPerGroup = getEffectiveMPerGroup(availLT.length, availM.length);
+  const maxGroups = getEffectiveMaxGroups();
+  const settings = loadSettings();
+  const pairMode = settings.pairMode || 'random';
+  const groups = [];
+  let groupNum = 1;
+
+  // Phase 1: LT + Members groups (if LT available)
+  if (availLT.length > 0 && availM.length >= membersPerGroup) {
+    const numLtGroups = Math.min(maxGroups, availLT.length, Math.floor(availM.length / membersPerGroup));
+    if (numLtGroups > 0) {
+      const lts = shuffle(availLT).slice(0, numLtGroups);
+
+      if (pairMode === 'smart') {
+        const matrix = buildPairMatrix();
+        const usedInRound = new Set();
+        for (let i = 0; i < numLtGroups; i++) {
+          const picked = smartPickMembers(availM, lts[i], usedInRound, matrix, membersPerGroup);
+          picked.forEach(m => usedInRound.add(m.id));
+          groups.push({ groupNumber: groupNum++, lt: lts[i], members: picked, _smartReasons: picked._smartReasons || [] });
+        }
+      } else {
+        const members = shuffle(availM).slice(0, numLtGroups * membersPerGroup);
+        for (let i = 0; i < numLtGroups; i++) {
+          const groupMembers = members.slice(i * membersPerGroup, (i + 1) * membersPerGroup);
+          groups.push({ groupNumber: groupNum++, lt: lts[i], members: groupMembers });
+        }
+      }
+    }
+  }
+
+  // Phase 2: Member-Only groups (when LT exhausted but members remain)
+  const usedMIds = new Set(groups.flatMap(g => g.members.map(m => m.id)));
+  let leftoverM = availM.filter(m => !usedMIds.has(m.id));
+
+  if (leftoverM.length >= 2 && groups.length < maxGroups) {
+    const moSize = membersPerGroup + 1; // one extra member since no LT
+    const shuffledLeft = shuffle(leftoverM);
+
+    while (shuffledLeft.length >= 2 && groups.length < maxGroups) {
+      if (shuffledLeft.length < moSize && shuffledLeft.length >= 2) {
+        // Not enough for a full group — merge into previous member-only group or create small group
+        const lastMoGroup = [...groups].reverse().find(g => g.lt === null);
+        if (lastMoGroup && shuffledLeft.length === 1) {
+          lastMoGroup.members.push(shuffledLeft.shift());
+        } else {
+          groups.push({ groupNumber: groupNum++, lt: null, members: shuffledLeft.splice(0) });
+        }
+      } else {
+        const take = Math.min(moSize, shuffledLeft.length);
+        groups.push({ groupNumber: groupNum++, lt: null, members: shuffledLeft.splice(0, take) });
+      }
+    }
+
+    // If exactly 1 person left, add to last group
+    if (shuffledLeft.length === 1) {
+      groups[groups.length - 1].members.push(shuffledLeft.shift());
+    }
+  }
+
+  applyPairRules(groups);
+  return groups;
+}
+
+function getTargetAngle(memberList, targetMember) {
+  const idx = memberList.findIndex(m => m.id === targetMember.id);
+  if (idx === -1) return 0;
+  const sliceAngle = (2 * Math.PI) / memberList.length;
+  const target = -Math.PI/2 - idx * sliceAngle - sliceAngle/2;
+  return target;
+}
+
+function startSpin() {
+  if (isSpinning) return;
+  const groups = pickGroups();
+  if (groups.length === 0) return;
+
+  isSpinning = true;
+  currentResults = null;
+  shownGroups.length = 0;
+  document.getElementById('spinBtn').disabled = true;
+  document.getElementById('resultsArea').innerHTML = '';
+  document.getElementById('spinStatus').textContent = '';
+
+  animateAllGroups(groups, 0);
+}
+
+function animateAllGroups(groups, groupIdx) {
+  if (groupIdx >= groups.length) {
+    currentResults = groups;
+    showAllResults(groups);
+    isSpinning = false;
+    return;
+  }
+
+  const g = groups[groupIdx];
+  const availLT = getAvailableLT();
+  const availM = getAvailableMembers();
+  const mCount = g.members.length;
+  document.getElementById('spinStatus').textContent = `กำลังหมุนกลุ่มที่ ${groupIdx + 1}/${groups.length}...`;
+
+  const hasLT = g.lt !== null;
+  const targetLT = hasLT ? getTargetAngle(availLT, g.lt) : 0;
+  const targetMs = g.members.map(m => getTargetAngle(availM, m));
+
+  const extraSpins = (4 + Math.random() * 2) * 2 * Math.PI;
+
+  const startAngles = { lt: wheelAngles.lt };
+  const endAngles = { lt: hasLT ? targetLT - extraSpins : wheelAngles.lt };
+  for (let i = 0; i < mCount; i++) {
+    const key = 'm' + i;
+    startAngles[key] = wheelAngles[key] || 0;
+    endAngles[key] = targetMs[i] - extraSpins * (1 + (i + 1) * 0.05);
+  }
+
+  const duration = 4000 + Math.random() * 2000;
+  const staggerMs = 300;
+  const startTime = performance.now();
+
+  function easeOutCubic(t) {
+    return 1 - Math.pow(1 - t, 3);
+  }
+
+  function animate(now) {
+    const elapsed = now - startTime;
+    const tLT = Math.min(1, elapsed / duration);
+
+    if (hasLT) {
+      wheelAngles.lt = startAngles.lt + (endAngles.lt - startAngles.lt) * easeOutCubic(tLT);
+    }
+
+    let allDone = true;
+    for (let i = 0; i < mCount; i++) {
+      const key = 'm' + i;
+      const tM = Math.min(1, elapsed / (duration + staggerMs * (i + 1)));
+      wheelAngles[key] = startAngles[key] + (endAngles[key] - startAngles[key]) * easeOutCubic(tM);
+      if (tM < 1) allDone = false;
+    }
+
+    drawAllWheels();
+
+    if (!allDone) {
+      requestAnimationFrame(animate);
+    } else {
+      if (hasLT) wheelAngles.lt = targetLT;
+      for (let i = 0; i < mCount; i++) {
+        wheelAngles['m' + i] = targetMs[i];
+      }
+      drawAllWheels();
+
+      showGroupResult(g, groupIdx);
+
+      setTimeout(() => animateAllGroups(groups, groupIdx + 1), 1200);
+    }
+  }
+
+  requestAnimationFrame(animate);
+}
+
+const shownGroups = [];
+
+function memberDetailHTML(m, roleClass, roleLabel) {
+  return `
+    <div class="member-item">
+      <span class="role-tag ${roleClass}">${roleLabel}</span>
+      <div style="display:inline-block;vertical-align:top">
+        <div class="member-detail-name">${getDisplayName(m)}</div>
+        <div class="member-detail-fullname">${m.name}</div>
+        ${m.company ? `<div class="member-detail-company">${m.company}</div>` : ''}
+        ${m.lcd ? `<div class="member-detail-lcd">${m.lcd}</div>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function smartReasonHTML(g) {
+  if (!g._smartReasons || g._smartReasons.length === 0) return '';
+  let html = '<div class="smart-reasons">';
+  html += '<div class="smart-reasons-toggle" onclick="this.parentElement.classList.toggle(\'open\')">ทำไมถึงจับคู่กลุ่มนี้?</div>';
+  html += '<div class="smart-reasons-body">';
+  g._smartReasons.forEach(r => {
+    html += `<div class="smart-reason-item"><span class="smart-reason-name">${getDisplayName(r.member)}</span><span class="smart-reason-score">คะแนน ${r.score}</span><span class="smart-reason-text">${r.reasons.join(' · ')}</span></div>`;
+  });
+  html += '</div></div>';
+  return html;
+}
+
+function showGroupResult(group, idx) {
+  shownGroups[idx] = group;
+  const area = document.getElementById('resultsArea');
+  let html = '<div class="group-results">';
+  shownGroups.forEach(g => {
+    if (!g) return;
+    let membersHTML = g.members.map(m => memberDetailHTML(m, 'role-member', 'M')).join('');
+    const ltHTML = g.lt ? memberDetailHTML(g.lt, 'role-lt', 'LT') : '<div class="member-only-badge">กลุ่ม Member</div>';
+    html += `
+      <div class="group-card">
+        <h4>กลุ่มที่ ${g.groupNumber}</h4>
+        ${ltHTML}
+        ${membersHTML}
+        ${smartReasonHTML(g)}
+      </div>
+    `;
+  });
+  html += '</div>';
+  area.innerHTML = html;
+}
+
+function showAllResults(groups) {
+  document.getElementById('spinStatus').textContent = 'หมุนเสร็จสิ้น!';
+
+  let html = '<div class="group-results">';
+  groups.forEach(g => {
+    let membersHTML = g.members.map(m => memberDetailHTML(m, 'role-member', 'M')).join('');
+    const ltHTML = g.lt ? memberDetailHTML(g.lt, 'role-lt', 'LT') : '<div class="member-only-badge">กลุ่ม Member</div>';
+    html += `
+      <div class="group-card">
+        <h4>กลุ่มที่ ${g.groupNumber}</h4>
+        ${ltHTML}
+        ${membersHTML}
+        ${smartReasonHTML(g)}
+      </div>
+    `;
+  });
+  html += '</div>';
+  html += `
+    <div class="share-btns-row" style="text-align:center;margin:14px 0;">
+      <button class="btn-share btn-copy-line" onclick="copyShareText(formatGroupsForShare(currentResults))">คัดลอกสำหรับ LINE</button>
+      <button class="btn-share btn-print" onclick="printResults()">พิมพ์</button>
+    </div>
+    <div class="action-btns">
+      <button id="saveBtn" onclick="saveResult()">บันทึกผล</button>
+      <button id="rerollBtn" onclick="reroll()">หมุนใหม่</button>
+    </div>
+  `;
+  document.getElementById('resultsArea').innerHTML = html;
+}
+
+function saveResult() {
+  if (!currentResults) return;
+  const data = loadData();
+  const spin = {
+    id: 'spin_' + Date.now(),
+    timestamp: new Date().toISOString(),
+    groups: currentResults.map(g => ({
+      groupNumber: g.groupNumber,
+      lt: g.lt ? { id: g.lt.id, nickname: g.lt.nickname, name: g.lt.name, display: getDisplayName(g.lt), company: g.lt.company || '', lcd: g.lt.lcd || '' } : null,
+      members: g.members.map(m => ({ id: m.id, nickname: m.nickname, name: m.name, display: getDisplayName(m), company: m.company || '', lcd: m.lcd || '' }))
+    }))
+  };
+  data.spins.unshift(spin);
+  saveData(data);
+
+  // Move selected people to used pool
+  currentResults.forEach(g => {
+    if (g.lt) usedLtIds.add(g.lt.id);
+    g.members.forEach(m => usedMemberIds.add(m.id));
+  });
+  saveSession();
+
+  currentResults = null;
+  currentWheelCount = 0; // Force wheel rebuild (ratio may change)
+
+  // Check if more groups can be spun
+  const remainLT = getAvailableLT();
+  const remainM = getAvailableMembers();
+  const mPerG = getEffectiveMPerGroup(remainLT.length, remainM.length);
+  const canContinue = remainM.length >= 2;
+
+  let successHTML = '<div class="save-success-area"><div class="success-msg">บันทึกเรียบร้อย!</div>';
+  if (canContinue) {
+    const nextLtGroups = remainLT.length > 0 ? Math.min(getEffectiveMaxGroups(), remainLT.length, Math.floor(remainM.length / mPerG)) : 0;
+    const leftAfterLt = remainM.length - nextLtGroups * mPerG;
+    const nextMoGroups = leftAfterLt >= 2 ? Math.ceil(leftAfterLt / (mPerG + 1)) : 0;
+    const nextGroups = nextLtGroups + nextMoGroups;
+    successHTML += `<div style="color:#6b7280;font-size:13px;margin-bottom:12px;">เหลืออีก ${remainLT.length} LT, ${remainM.length} M — จับได้อีก ${nextGroups} กลุ่ม</div>`;
+    successHTML += '<button class="btn-continue-spin" onclick="continueSpin()">หมุนต่อ</button>';
+  }
+  successHTML += '</div>';
+  document.getElementById('resultsArea').innerHTML = successHTML;
+  document.getElementById('spinStatus').textContent = '';
+
+  updatePoolStatus();
+  drawAllWheels();
+}
+
+function continueSpin() {
+  document.getElementById('resultsArea').innerHTML = '';
+  document.getElementById('spinStatus').textContent = '';
+  startSpin();
+}
+
+function reroll() {
+  currentResults = null;
+  document.getElementById('resultsArea').innerHTML = '';
+  document.getElementById('spinStatus').textContent = '';
+  document.getElementById('spinBtn').disabled = false;
+  updatePoolStatus();
+}
+
+// ==================== T3-2: PAIR SIMULATION PREVIEW ====================
+function simulateSpin() {
+  if (isSpinning) return;
+  const groups = pickGroups();
+  if (groups.length === 0) { alert('ไม่สามารถจำลองได้ — ไม่มีสมาชิกเพียงพอ'); return; }
+
+  const settings = loadSettings();
+  const isSmartMode = settings.pairMode === 'smart';
+
+  document.getElementById('spinStatus').textContent = 'ตัวอย่างผลจำลอง (ยังไม่บันทึก)';
+  let html = '<div style="background:#f5f3ff;border:2px dashed #7c3aed;border-radius:12px;padding:12px 16px;margin-bottom:12px;font-size:13px;color:#6d28d9;text-align:center;font-weight:600">ผลจำลอง — กดหมุนจริงเพื่อบันทึก</div>';
+  html += '<div class="group-results">';
+  groups.forEach(g => {
+    let membersHTML = g.members.map(m => memberDetailHTML(m, 'role-member', 'M')).join('');
+    const ltHTML = g.lt ? memberDetailHTML(g.lt, 'role-lt', 'LT') : '<div class="member-only-badge">กลุ่ม Member</div>';
+    html += `<div class="group-card" style="border:2px dashed #c4b5fd"><h4>กลุ่มที่ ${g.groupNumber}</h4>${ltHTML}${membersHTML}${smartReasonHTML(g)}</div>`;
+  });
+  html += '</div>';
+  html += `<div class="action-btns" style="margin-top:12px"><button onclick="simulateSpin()" style="background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;border:none;padding:12px 28px;border-radius:25px;font-weight:600;cursor:pointer;font-size:14px">จำลองใหม่</button><button onclick="reroll()" style="background:#f3f4f6;color:#6b7280;border:none;padding:12px 28px;border-radius:25px;font-weight:600;cursor:pointer;font-size:14px;margin-left:8px">ปิด</button></div>`;
+  document.getElementById('resultsArea').innerHTML = html;
+}
+
+// ==================== SPIN ALL (จับคู่ครบทุกคน — หมุนทีเดียว) ====================
+let spinAllMode = false;
+let allRoundsData = [];
+let spinAllBackupLT = null;
+let spinAllBackupM = null;
+
+function pickAllRounds() {
+  const tempUsedLT = new Set(usedLtIds);
+  const tempUsedM = new Set(usedMemberIds);
+  const rounds = [];
+
+  while (true) {
+    const aLT = ltMembers.filter(m => !tempUsedLT.has(m.id) && !absentIds.has(m.id));
+    const aM = regularMembers.filter(m => !tempUsedM.has(m.id) && !absentIds.has(m.id));
+    if (aM.length < 2 && aLT.length === 0) break;
+    if (aM.length === 0) break;
+
+    const maxGroups = getEffectiveMaxGroups();
+    const settings = loadSettings();
+    const pairMode = settings.pairMode || 'random';
+    const groups = [];
+    let groupNum = 1;
+
+    // Phase 1: LT + Members groups
+    if (aLT.length > 0 && aM.length > 0) {
+      const mPerGroup = getEffectiveMPerGroup(aLT.length, aM.length);
+      const numLtGroups = Math.min(maxGroups, aLT.length, Math.floor(aM.length / mPerGroup));
+
+      if (numLtGroups > 0) {
+        const lts = shuffle(aLT).slice(0, numLtGroups);
+
+        if (pairMode === 'smart') {
+          const matrix = buildPairMatrix();
+          const usedInRound = new Set([...tempUsedM]);
+          for (let i = 0; i < numLtGroups; i++) {
+            const picked = smartPickMembers(aM, lts[i], usedInRound, matrix, mPerGroup);
+            picked.forEach(m => usedInRound.add(m.id));
+            groups.push({ groupNumber: groupNum++, lt: lts[i], members: picked, _smartReasons: picked._smartReasons || [] });
+          }
+        } else {
+          const ms = shuffle(aM).slice(0, numLtGroups * mPerGroup);
+          for (let i = 0; i < numLtGroups; i++) {
+            groups.push({
+              groupNumber: groupNum++,
+              lt: lts[i],
+              members: ms.slice(i * mPerGroup, (i + 1) * mPerGroup)
+            });
+          }
+        }
+
+        lts.forEach(lt => tempUsedLT.add(lt.id));
+        groups.forEach(g => g.members.forEach(m => tempUsedM.add(m.id)));
+      }
+    }
+
+    // Phase 2: Member-Only groups for remaining members
+    const leftoverM = regularMembers.filter(m => !tempUsedM.has(m.id) && !absentIds.has(m.id));
+    if (leftoverM.length >= 2 && groups.length < maxGroups) {
+      const mPerGroup = getEffectiveMPerGroup(aLT.length > 0 ? aLT.length : 1, aM.length);
+      const moSize = mPerGroup + 1;
+      const shuffledLeft = shuffle(leftoverM);
+
+      while (shuffledLeft.length >= 2 && groups.length < maxGroups) {
+        const take = Math.min(moSize, shuffledLeft.length);
+        if (take < 2) break;
+        groups.push({ groupNumber: groupNum++, lt: null, members: shuffledLeft.splice(0, take) });
+      }
+
+      if (shuffledLeft.length === 1 && groups.length > 0) {
+        groups[groups.length - 1].members.push(shuffledLeft.shift());
+      }
+
+      groups.filter(g => g.lt === null).forEach(g => g.members.forEach(m => tempUsedM.add(m.id)));
+    }
+
+    if (groups.length === 0) break;
+    rounds.push(groups);
+  }
+
+  return rounds;
+}
+
+function startSpinAll() {
+  if (isSpinning) return;
+  const rounds = pickAllRounds();
+  if (rounds.length === 0) return;
+
+  isSpinning = true;
+  spinAllMode = true;
+  currentResults = null;
+
+  // Backup for reroll
+  spinAllBackupLT = new Set(usedLtIds);
+  spinAllBackupM = new Set(usedMemberIds);
+
+  // Build allRoundsData + mark everyone used
+  allRoundsData = rounds.map((groups, idx) => {
+    groups.forEach(g => {
+      if (g.lt) usedLtIds.add(g.lt.id);
+      g.members.forEach(m => usedMemberIds.add(m.id));
+    });
+    return { roundNumber: idx + 1, groups };
+  });
+
+  document.getElementById('spinBtn').disabled = true;
+  document.getElementById('spinAllBtn').disabled = true;
+  document.getElementById('resultsArea').innerHTML = '';
+  document.getElementById('spinStatus').textContent = 'กำลังสุ่มจับคู่ทั้งหมด...';
+
+  // One quick cosmetic spin, then show all results
+  const mPerGroup = getCurrentMembersPerGroup();
+  currentWheelCount = 0;
+  drawAllWheels();
+
+  const extraSpins = (4 + Math.random() * 2) * 2 * Math.PI;
+  const startAng = {};
+  const endAng = {};
+  const keys = ['lt'];
+  startAng.lt = wheelAngles.lt;
+  endAng.lt = wheelAngles.lt - extraSpins;
+  for (let i = 0; i < mPerGroup; i++) {
+    const k = 'm' + i;
+    keys.push(k);
+    startAng[k] = wheelAngles[k] || 0;
+    endAng[k] = startAng[k] - extraSpins * (1 + (i + 1) * 0.08);
+  }
+
+  const duration = 3000;
+  const staggerMs = 200;
+  const startTime = performance.now();
+
+  function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+  function animate(now) {
+    const elapsed = now - startTime;
+    let allDone = true;
+    keys.forEach((k, idx) => {
+      const d = idx === 0 ? duration : duration + staggerMs * idx;
+      const t = Math.min(1, elapsed / d);
+      wheelAngles[k] = startAng[k] + (endAng[k] - startAng[k]) * easeOutCubic(t);
+      if (t < 1) allDone = false;
+    });
+
+    drawAllWheels();
+
+    if (!allDone) {
+      requestAnimationFrame(animate);
+    } else {
+      isSpinning = false;
+      currentWheelCount = 0;
+      drawAllWheels();
+      showSpinAllFinalResults();
+    }
+  }
+
+  requestAnimationFrame(animate);
+}
+
+function showSpinAllFinalResults() {
+  const totalGroups = allRoundsData.reduce((sum, rd) => sum + rd.groups.length, 0);
+  const totalPeople = allRoundsData.reduce((sum, rd) =>
+    sum + rd.groups.reduce((s, g) => s + (g.lt ? 1 : 0) + g.members.length, 0), 0);
+
+  document.getElementById('spinStatus').textContent =
+    `หมุนเสร็จสิ้น! ${allRoundsData.length} รอบ | ${totalGroups} กลุ่ม | ${totalPeople} คน`;
+
+  const area = document.getElementById('resultsArea');
+  let html = '';
+
+  allRoundsData.forEach(rd => {
+    html += `<div class="round-header">รอบที่ ${rd.roundNumber}</div>`;
+    html += '<div class="group-results">';
+    rd.groups.forEach(g => {
+      let membersHTML = g.members.map(m => memberDetailHTML(m, 'role-member', 'M')).join('');
+      const ltHTML = g.lt ? memberDetailHTML(g.lt, 'role-lt', 'LT') : '<div class="member-only-badge">กลุ่ม Member</div>';
+      html += `
+        <div class="group-card">
+          <h4>กลุ่มที่ ${g.groupNumber}</h4>
+          ${ltHTML}
+          ${membersHTML}
+          ${smartReasonHTML(g)}
+        </div>
+      `;
+    });
+    html += '</div>';
+  });
+
+  html += `
+    <div class="share-btns-row" style="text-align:center;margin:14px 0;">
+      <button class="btn-share btn-copy-line" onclick="copyShareText(formatAllRoundsForShare(allRoundsData))">คัดลอกสำหรับ LINE</button>
+      <button class="btn-share btn-print" onclick="printResults()">พิมพ์</button>
+    </div>
+    <div class="action-btns">
+      <button id="saveBtn" onclick="saveAllRoundsResult()">บันทึกผลทั้งหมด</button>
+      <button id="rerollBtn" onclick="rerollSpinAll()">สุ่มใหม่</button>
+    </div>
+  `;
+
+  area.innerHTML = html;
+}
+
+function saveAllRoundsResult() {
+  if (!allRoundsData || allRoundsData.length === 0) return;
+  const data = loadData();
+
+  allRoundsData.forEach(rd => {
+    const spin = {
+      id: 'spin_' + Date.now() + '_r' + rd.roundNumber,
+      timestamp: new Date().toISOString(),
+      groups: rd.groups.map(g => ({
+        groupNumber: g.groupNumber,
+        lt: g.lt ? { id: g.lt.id, nickname: g.lt.nickname, name: g.lt.name, display: getDisplayName(g.lt), company: g.lt.company || '', lcd: g.lt.lcd || '' } : null,
+        members: g.members.map(m => ({ id: m.id, nickname: m.nickname, name: m.name, display: getDisplayName(m), company: m.company || '', lcd: m.lcd || '' }))
+      }))
+    };
+    data.spins.unshift(spin);
+  });
+
+  saveData(data);
+  saveSession();
+
+  allRoundsData = [];
+  spinAllMode = false;
+  spinAllBackupLT = null;
+  spinAllBackupM = null;
+  currentWheelCount = 0;
+
+  document.getElementById('resultsArea').innerHTML =
+    '<div style="text-align:center;color:#28a745;padding:20px;font-size:16px;font-weight:600;">บันทึกเรียบร้อย!</div>';
+  document.getElementById('spinStatus').textContent = '';
+
+  updatePoolStatus();
+  drawAllWheels();
+}
+
+function rerollSpinAll() {
+  if (spinAllBackupLT) usedLtIds = spinAllBackupLT;
+  if (spinAllBackupM) usedMemberIds = spinAllBackupM;
+
+  allRoundsData = [];
+  spinAllMode = false;
+  spinAllBackupLT = null;
+  spinAllBackupM = null;
+  currentWheelCount = 0;
+
+  document.getElementById('resultsArea').innerHTML = '';
+  document.getElementById('spinStatus').textContent = '';
+  document.getElementById('spinBtn').disabled = false;
+  document.getElementById('spinAllBtn').disabled = false;
+
+  updatePoolStatus();
+  drawAllWheels();
+}
+
+// ==================== HISTORY ====================
+let historyPageSize = 20;
+let historyShowCount = 20;
+
+function renderHistory() {
+  const data = loadData();
+  const el = document.getElementById('historyList');
+  const searchEl = document.getElementById('historySearch');
+  const dateFromEl = document.getElementById('historyDateFrom');
+  const dateToEl = document.getElementById('historyDateTo');
+  const badgeEl = document.getElementById('unconfirmedBadge');
+
+  let spins = data.spins;
+
+  // Search filter
+  const search = searchEl ? searchEl.value.toLowerCase() : '';
+  if (search) {
+    spins = spins.filter(spin =>
+      spin.groups.some(g => {
+        const ltNames = g.lt ? [g.lt.nickname, g.lt.name, g.lt.display || ''] : [];
+        const names = [...ltNames, ...g.members.map(m => m.nickname), ...g.members.map(m => m.name), ...g.members.map(m => m.display || '')];
+        return names.some(n => n.toLowerCase().includes(search));
+      })
+    );
+  }
+
+  // Date range filter
+  if (dateFromEl && dateFromEl.value) {
+    const from = new Date(dateFromEl.value);
+    spins = spins.filter(s => new Date(s.timestamp) >= from);
+  }
+  if (dateToEl && dateToEl.value) {
+    const to = new Date(dateToEl.value);
+    to.setHours(23, 59, 59, 999);
+    spins = spins.filter(s => new Date(s.timestamp) <= to);
+  }
+
+  // Unconfirmed badge
+  if (badgeEl) {
+    const totalUnconfirmed = data.spins.reduce((sum, spin) =>
+      sum + spin.groups.filter(g => !g.confirmed).length, 0);
+    badgeEl.innerHTML = totalUnconfirmed > 0
+      ? `<span class="unconfirmed-badge">ยังไม่ยืนยัน ${totalUnconfirmed}</span>` : '';
+  }
+
+  if (spins.length === 0) {
+    el.innerHTML = '<div class="no-history">' + (data.spins.length === 0 ? 'ยังไม่มีประวัติการหมุน' : 'ไม่พบผลลัพธ์ที่ตรงกัน') + '</div>';
+    return;
+  }
+
+  const totalSpins = data.spins.length;
+  const visibleSpins = spins.slice(0, historyShowCount);
+  const hasMore = spins.length > historyShowCount;
+
+  let html = `<div style="text-align:center;font-size:13px;color:#6b7280;margin-bottom:8px;">แสดง ${visibleSpins.length} จาก ${spins.length} รายการ</div>`;
+  visibleSpins.forEach((spin) => {
+    const origIdx = data.spins.indexOf(spin);
+    const d = new Date(spin.timestamp);
+    const ts = d.toLocaleDateString('th-TH', { year:'numeric', month:'short', day:'numeric' }) + ' ' + d.toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit' });
+    html += `
+      <div class="history-item">
+        <div class="history-header">
+          <span>รอบที่ ${totalSpins - origIdx}</span>
+          <button class="btn-copy-small" onclick="copyHistorySpin('${spin.id}', ${totalSpins - origIdx})">คัดลอก</button>
+          <span class="timestamp">${ts}</span>
+          <button class="delete-btn" onclick="deleteHistory('${spin.id}')">ลบ</button>
+        </div>
+        <div class="history-groups">
+    `;
+    spin.groups.forEach(g => {
+      let membersHTML = g.members.map(m => historyMemberHTML(m, 'M')).join('');
+      const isConfirmed = g.confirmed === true;
+      const confirmClass = isConfirmed ? 'confirmed' : 'unconfirmed';
+      const btnClass = isConfirmed ? 'confirmed' : 'unconfirmed';
+      const btnText = isConfirmed ? 'ยืนยันแล้ว ✓' : 'ยังไม่ยืนยัน';
+      const hasNotes = g.notes && g.notes.trim();
+      const notesBtnClass = hasNotes ? 'notes-btn has-notes' : 'notes-btn';
+      const notesBtnText = hasNotes ? 'ดูบันทึก' : '+ บันทึก';
+      const followedUp = g.followedUp === true;
+      const followupClass = followedUp ? 'followup-done' : 'followup-pending';
+      const followupText = followedUp ? 'ติดตามแล้ว' : 'รอติดตาม';
+      const refCount = g.referrals || 0;
+      const ltHistHTML = g.lt ? historyMemberHTML(g.lt, 'LT') : '<div class="member-only-badge" style="margin:4px 0">กลุ่ม Member</div>';
+      html += `
+        <div class="history-group ${confirmClass}">
+          <h5>กลุ่มที่ ${g.groupNumber}
+            <button class="confirm-btn ${btnClass}" onclick="toggleGroupConfirm('${spin.id}', ${g.groupNumber})">${btnText}</button>
+            <button class="${notesBtnClass}" onclick="showNotesForm('${spin.id}', ${g.groupNumber})">${notesBtnText}</button>
+            <span class="followup-badge ${followupClass}" onclick="toggleFollowUp('${spin.id}', ${g.groupNumber})">${followupText}</span>
+            <span class="referral-badge" onclick="promptReferral('${spin.id}', ${g.groupNumber})" title="Referrals">${refCount > 0 ? refCount + ' Ref' : '+ Ref'}</span>
+          </h5>
+          ${ltHistHTML}
+          ${membersHTML}
+          ${hasNotes ? `<div class="notes-display">${g.notes.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>` : ''}
+        </div>
+      `;
+    });
+    html += '</div></div>';
+  });
+
+  if (hasMore) {
+    html += `<div style="text-align:center;margin:16px 0;"><button onclick="loadMoreHistory()" style="padding:10px 32px;font-size:14px;font-weight:600;border:2px solid #e5e7eb;border-radius:60px;background:#fff;color:#6b7280;cursor:pointer;transition:all 0.2s;">แสดงเพิ่ม (${spins.length - historyShowCount} รายการ)</button></div>`;
+  }
+
+  el.innerHTML = html;
+}
+
+function loadMoreHistory() {
+  historyShowCount += historyPageSize;
+  renderHistory();
+}
+
+function resetHistoryPagination() {
+  historyShowCount = historyPageSize;
+}
+
+function confirmAllHistory() {
+  const data = loadData();
+  if (data.spins.length === 0) return;
+  if (!confirm('ยืนยันทุกกลุ่มในประวัติทั้งหมด?')) return;
+  data.spins.forEach(spin => {
+    spin.groups.forEach(g => { g.confirmed = true; });
+  });
+  saveData(data);
+  renderHistory();
+}
+
+function deleteAllHistory() {
+  const data = loadData();
+  if (data.spins.length === 0) return;
+  if (!confirm('ลบประวัติการหมุนทั้งหมด?\nการดำเนินการนี้ไม่สามารถย้อนกลับได้')) return;
+  data.spins = [];
+  saveData(data);
+  renderHistory();
+}
+
+function historyMemberHTML(m, roleLabel) {
+  const roleClass = roleLabel === 'LT' ? 'role-lt' : 'role-member';
+  const dispName = m.display || m.nickname;
+  return `
+    <div class="history-member-detail">
+      <span class="role-tag ${roleClass}">${roleLabel}</span>
+      <span class="history-member-name">${dispName}</span>
+      <div class="history-member-sub">${m.name}${m.company ? ' | ' + m.company : ''}${m.lcd ? ' | ' + m.lcd : ''}</div>
+    </div>
+  `;
+}
+
+function deleteHistory(id) {
+  if (!confirm('ต้องการลบรายการนี้?')) return;
+  const data = loadData();
+  data.spins = data.spins.filter(s => s.id !== id);
+  saveData(data);
+  renderHistory();
+}
+
+// ==================== T3-4: DROPOUT RISK ====================
+function getDropoutRiskMembers() {
+  const data = loadData();
+  const allMem = getAllMembers();
+  if (data.spins.length < 2) return [];
+
+  const now = new Date();
+  const fourWeeksAgo = new Date(now);
+  fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28);
+
+  // Find last participation date for each member
+  const lastSeen = {};
+  data.spins.forEach(spin => {
+    const d = new Date(spin.timestamp);
+    spin.groups.forEach(g => {
+      getGroupAllIds(g).forEach(id => {
+        if (!lastSeen[id] || d > lastSeen[id]) lastSeen[id] = d;
+      });
+    });
+  });
+
+  const atRisk = allMem.filter(m => {
+    if (absentIds.has(m.id)) return false; // skip absent members
+    const last = lastSeen[m.id];
+    if (!last) return true; // never participated
+    return last < fourWeeksAgo;
+  }).map(m => {
+    const last = lastSeen[m.id];
+    const weeksSince = last ? Math.floor((now - last) / (7 * 24 * 60 * 60 * 1000)) : 999;
+    return { member: m, weeksSince, lastDate: last };
+  }).sort((a, b) => b.weeksSince - a.weeksSince);
+
+  return atRisk;
+}
+
+// ==================== T2-2: MEMBER HEALTH SCORE ====================
+function calcHealthScore(memberId, matrix, totalSpins, monthlyTarget) {
+  const allMem = getAllMembers();
+  const pairCount = matrix.pairCount[memberId] || 0;
+  // Attendance score (0-100): % of spins participated
+  const attendScore = totalSpins > 0 ? (pairCount / totalSpins) * 100 : 0;
+  // Diversity score (0-100): % of unique partners met vs total possible
+  const freqMap = matrix.freq.get(memberId) || new Map();
+  const uniquePartners = freqMap.size;
+  const maxPartners = allMem.length - 1;
+  const diversityScore = maxPartners > 0 ? (uniquePartners / maxPartners) * 100 : 0;
+  // Goal score (0-100): this month's meetings vs target
+  const monthCount = countMeetingsThisMonth(memberId, matrix.spins);
+  const goalScore = Math.min(100, (monthCount / monthlyTarget) * 100);
+  // Composite: weighted average
+  const health = Math.round(attendScore * 0.4 + diversityScore * 0.35 + goalScore * 0.25);
+  return { health, attendScore: Math.round(attendScore), diversityScore: Math.round(diversityScore), goalScore: Math.round(goalScore) };
+}
+
+function healthBadgeHTML(score) {
+  const cls = score >= 60 ? 'health-high' : score >= 30 ? 'health-mid' : 'health-low';
+  return `<span class="health-badge ${cls}">${score}</span>`;
+}
+
+// ==================== SUMMARY ====================
+function renderSummary() {
+  const filterType = document.getElementById('filterType').value;
+  const filterSearch = document.getElementById('filterSearch').value.toLowerCase();
+  const allMem = getAllMembers();
+
+  // Restore goal target from settings
+  const s = loadSettings();
+  const goalEl = document.getElementById('goalMonthlyTarget');
+  if (goalEl && s.monthlyTarget) goalEl.value = s.monthlyTarget;
+
+  // Show/hide not-met-by dropdown
+  const notMetBySelect = document.getElementById('filterNotMetBy');
+  if (filterType === 'not-met-by') {
+    notMetBySelect.style.display = '';
+    if (notMetBySelect.options.length <= 1) {
+      notMetBySelect.innerHTML = '<option value="">เลือกชื่อ...</option>';
+      allMem.forEach(m => {
+        notMetBySelect.innerHTML += `<option value="${m.id}">${getDisplayName(m)} (${m.type})</option>`;
+      });
+    }
+  } else {
+    notMetBySelect.style.display = 'none';
+  }
+
+  const matrix = buildPairMatrix();
+  const pairCount = matrix.pairCount;
+  const freq = matrix.freq;
+  const lastMet = matrix.lastMet;
+
+  const totalSpins = matrix.spins.length;
+  const pairedMembers = allMem.filter(m => pairCount[m.id] > 0).length;
+  const neverPaired = allMem.filter(m => !pairCount[m.id]).length;
+
+  document.getElementById('summaryCards').innerHTML = `
+    <div class="stat-card"><div class="stat-num">${totalSpins}</div><div class="stat-label">จำนวนรอบที่หมุน</div></div>
+    <div class="stat-card"><div class="stat-num">${pairedMembers}</div><div class="stat-label">สมาชิกที่ถูกจับคู่แล้ว</div></div>
+    <div class="stat-card"><div class="stat-num">${neverPaired}</div><div class="stat-label">ยังไม่เคยถูกจับคู่</div></div>
+    <div class="stat-card"><div class="stat-num">${allMem.length}</div><div class="stat-label">สมาชิกทั้งหมด</div></div>
+  `;
+
+  let filtered = allMem;
+  if (filterType === 'LT') filtered = filtered.filter(m => m.type === 'LT');
+  else if (filterType === 'MEMBER') filtered = filtered.filter(m => m.type === 'MEMBER');
+  else if (filterType === 'never') filtered = filtered.filter(m => !pairCount[m.id]);
+  else if (filterType === 'not-met-by') {
+    const targetId = parseInt(notMetBySelect.value);
+    if (targetId) {
+      const targetFreq = freq.get(targetId) || new Map();
+      filtered = filtered.filter(m => m.id !== targetId && !targetFreq.has(m.id));
+    }
+  }
+
+  if (filterSearch) {
+    filtered = filtered.filter(m =>
+      m.nickname.toLowerCase().includes(filterSearch) ||
+      m.name.toLowerCase().includes(filterSearch) ||
+      (m.display && m.display.toLowerCase().includes(filterSearch)) ||
+      (m.company && m.company.toLowerCase().includes(filterSearch)) ||
+      (m.lcd && m.lcd.toLowerCase().includes(filterSearch))
+    );
+  }
+
+  filtered.sort((a, b) => (pairCount[b.id] || 0) - (pairCount[a.id] || 0));
+
+  const monthlyTarget = getMonthlyTarget();
+
+  let tbody = '';
+  filtered.forEach(m => {
+    const count = pairCount[m.id] || 0;
+    const freqMap = freq.get(m.id) || new Map();
+    let partners = '-';
+    if (count > 0 && freqMap.size > 0) {
+      partners = [...freqMap.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .map(([pid, cnt]) => {
+          const p = findMemberById(pid);
+          return p ? `${getDisplayName(p)}(${cnt})` : '?';
+        }).join(', ');
+    }
+    const attendPct = totalSpins > 0 ? Math.round((count / totalSpins) * 100) : 0;
+    const attendClass = attendPct < 30 ? 'color:#ef4444;font-weight:700' : attendPct < 60 ? 'color:#d97706' : 'color:#059669;font-weight:600';
+    const monthCount = countMeetingsThisMonth(m.id, matrix.spins);
+    const goalPct = Math.min(100, Math.round((monthCount / monthlyTarget) * 100));
+    const goalClass = goalPct < 40 ? 'goal-low' : goalPct < 80 ? 'goal-mid' : 'goal-high';
+    const hs = calcHealthScore(m.id, matrix, totalSpins, monthlyTarget);
+    const cls = count === 0 ? ' class="not-paired"' : '';
+    tbody += `<tr${cls}>
+      <td><a href="javascript:void(0)" onclick="showMemberDetail(${m.id})" style="color:inherit;text-decoration:underline;cursor:pointer;">${getDisplayName(m)}</a><br><small style="color:#888888">${m.name}</small></td>
+      <td>${m.type}</td>
+      <td style="font-size:11px;color:#888888">${m.company || '-'}</td>
+      <td>${count}</td>
+      <td style="${attendClass}">${attendPct}%</td>
+      <td title="เข้าร่วม ${hs.attendScore} | หลากหลาย ${hs.diversityScore} | เป้าหมาย ${hs.goalScore}">${healthBadgeHTML(hs.health)}</td>
+      <td style="min-width:100px"><div style="font-size:12px;font-weight:600">${monthCount}/${monthlyTarget}</div><div class="goal-progress-bar"><div class="goal-progress-fill ${goalClass}" style="width:${goalPct}%"></div></div></td>
+      <td style="font-size:11px">${count > 0 ? partners : '-'}</td>
+    </tr>`;
+  });
+  document.getElementById('summaryBody').innerHTML = tbody;
+
+  renderDashboard();
+  renderHeatmap();
+}
+
+// ==================== EXPORT CSV ====================
+function exportCSV() {
+  const matrix = buildPairMatrix();
+  const allMem = getAllMembers();
+
+  const totalSpins = matrix.spins.length;
+  let csv = '\uFEFF';
+  csv += 'ชื่อเล่น,ชื่อ-สกุล,ประเภท,บริษัท,ธุรกิจ,จำนวนครั้ง,%เข้าร่วม,จับคู่กับ\n';
+  allMem.forEach(m => {
+    const count = matrix.pairCount[m.id] || 0;
+    const attendPct = totalSpins > 0 ? Math.round(count / totalSpins * 100) : 0;
+    const freqMap = matrix.freq.get(m.id) || new Map();
+    const partners = freqMap.size > 0 ? [...freqMap.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .map(([pid, cnt]) => {
+        const p = findMemberById(pid);
+        return p ? `${getDisplayName(p)}(${cnt})` : '?';
+      }).join(' / ') : '';
+    csv += `"${getDisplayName(m)}","${m.name}","${m.type}","${m.company || ''}","${m.lcd || ''}",${count},${attendPct}%,"${partners}"\n`;
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'BNI_1-2-1_สรุป.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ==================== T3-1: MONTHLY REPORT ====================
+function showMonthlyReport() {
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+  const monthLabel = now.toLocaleDateString('th-TH', { year: 'numeric', month: 'long' });
+
+  const data = loadData();
+  const allMem = getAllMembers();
+  const matrix = buildPairMatrix();
+  const monthlyTarget = getMonthlyTarget();
+  const totalSpins = data.spins.length;
+
+  // Month spins
+  const monthSpins = data.spins.filter(s => {
+    const d = new Date(s.timestamp);
+    return d >= monthStart && d <= monthEnd;
+  });
+  const monthGroups = monthSpins.reduce((sum, s) => sum + s.groups.length, 0);
+  const monthConfirmed = monthSpins.reduce((sum, s) => sum + s.groups.filter(g => g.confirmed).length, 0);
+
+  // Members stats this month
+  const monthPairCount = {};
+  monthSpins.forEach(spin => {
+    spin.groups.forEach(g => {
+      getGroupAllIds(g).forEach(id => { monthPairCount[id] = (monthPairCount[id] || 0) + 1; });
+    });
+  });
+  const activeThisMonth = allMem.filter(m => monthPairCount[m.id] > 0).length;
+
+  // Top performers
+  const top5 = allMem.map(m => ({ m, count: monthPairCount[m.id] || 0 }))
+    .sort((a, b) => b.count - a.count).slice(0, 5).filter(x => x.count > 0);
+
+  // Goal progress
+  const atGoal = allMem.filter(m => (monthPairCount[m.id] || 0) >= monthlyTarget).length;
+  const behindGoal = allMem.filter(m => (monthPairCount[m.id] || 0) > 0 && (monthPairCount[m.id] || 0) < monthlyTarget).length;
+  const noActivity = allMem.filter(m => !(monthPairCount[m.id])).length;
+
+  // Diversity
+  let metPairs = 0;
+  const totalPossible = allMem.length * (allMem.length - 1) / 2;
+  for (let i = 0; i < allMem.length; i++) {
+    const aFreq = matrix.freq.get(allMem[i].id);
+    if (!aFreq) continue;
+    for (let j = i + 1; j < allMem.length; j++) {
+      if (aFreq.has(allMem[j].id)) metPairs++;
+    }
+  }
+  const diversityPct = totalPossible > 0 ? Math.round((metPairs / totalPossible) * 100) : 0;
+
+  // Health scores
+  const healthScores = allMem.map(m => calcHealthScore(m.id, matrix, totalSpins, monthlyTarget));
+  const avgHealth = healthScores.length > 0 ? Math.round(healthScores.reduce((a, b) => a + b.health, 0) / healthScores.length) : 0;
+
+  // Follow-up
+  const fuStats = getFollowUpStats();
+
+  // Referral stats
+  let totalReferrals = 0;
+  monthSpins.forEach(s => s.groups.forEach(g => { totalReferrals += (g.referrals || 0); }));
+
+  let html = `<div id="monthlyReportContent">`;
+  html += `<div style="text-align:center;margin-bottom:16px;"><h2 style="font-size:20px;font-weight:700;color:#7c3aed;margin:0">BNI 1-2-1 สรุปรายเดือน</h2><div style="font-size:14px;color:#6b7280">${monthLabel}</div></div>`;
+
+  html += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">`;
+  html += `<div style="background:#f5f3ff;padding:12px;border-radius:10px;text-align:center"><div style="font-size:22px;font-weight:700;color:#7c3aed">${monthSpins.length}</div><div style="font-size:11px;color:#6b7280">รอบที่หมุน</div></div>`;
+  html += `<div style="background:#f0fdf4;padding:12px;border-radius:10px;text-align:center"><div style="font-size:22px;font-weight:700;color:#059669">${activeThisMonth}/${allMem.length}</div><div style="font-size:11px;color:#6b7280">สมาชิกที่มีส่วนร่วม</div></div>`;
+  html += `<div style="background:#eff6ff;padding:12px;border-radius:10px;text-align:center"><div style="font-size:22px;font-weight:700;color:#2563eb">${diversityPct}%</div><div style="font-size:11px;color:#6b7280">ความหลากหลายคู่</div></div>`;
+  html += `</div>`;
+
+  html += `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;">`;
+  html += `<div style="background:#f9fafb;padding:8px;border-radius:8px;text-align:center;font-size:12px"><strong>${monthGroups}</strong><br>กลุ่มทั้งหมด</div>`;
+  html += `<div style="background:#f9fafb;padding:8px;border-radius:8px;text-align:center;font-size:12px"><strong>${monthConfirmed}</strong><br>ยืนยันแล้ว</div>`;
+  html += `<div style="background:#f9fafb;padding:8px;border-radius:8px;text-align:center;font-size:12px"><strong>${avgHealth}</strong><br>สุขภาพเฉลี่ย</div>`;
+  html += `<div style="background:#f9fafb;padding:8px;border-radius:8px;text-align:center;font-size:12px"><strong>${totalReferrals}</strong><br>Referrals</div>`;
+  html += `</div>`;
+
+  // Goal progress section
+  html += `<h4 style="font-size:14px;font-weight:700;border-bottom:2px solid #7c3aed;padding-bottom:4px;margin:12px 0 8px;color:#7c3aed">เป้าหมาย (${monthlyTarget} ครั้ง/เดือน)</h4>`;
+  html += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">`;
+  html += `<div style="background:#dcfce7;padding:8px;border-radius:8px;text-align:center;font-size:12px"><strong style="font-size:18px;color:#166534">${atGoal}</strong><br>ถึงเป้า</div>`;
+  html += `<div style="background:#fef9c3;padding:8px;border-radius:8px;text-align:center;font-size:12px"><strong style="font-size:18px;color:#854d0e">${behindGoal}</strong><br>กำลังไล่</div>`;
+  html += `<div style="background:#fef2f2;padding:8px;border-radius:8px;text-align:center;font-size:12px"><strong style="font-size:18px;color:#991b1b">${noActivity}</strong><br>ยังไม่เริ่ม</div>`;
+  html += `</div>`;
+
+  // Top 5
+  if (top5.length > 0) {
+    html += `<h4 style="font-size:14px;font-weight:700;border-bottom:2px solid #059669;padding-bottom:4px;margin:12px 0 8px;color:#059669">Top 5 ประจำเดือน</h4>`;
+    top5.forEach((x, i) => {
+      html += `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f3f4f6"><span style="font-weight:700;color:#7c3aed;width:20px">${i+1}</span><span style="flex:1">${getDisplayName(x.m)} <small style="color:#888">(${x.m.type})</small></span><span style="font-weight:700">${x.count} ครั้ง</span></div>`;
+    });
+  }
+
+  // Follow-up
+  html += `<div style="margin-top:12px;padding:10px;background:#fffbeb;border-radius:8px;font-size:12px;color:#92400e"><strong>ติดตามผล:</strong> รอติดตาม ${fuStats.pending} กลุ่ม | ติดตามแล้ว ${fuStats.done} กลุ่ม</div>`;
+
+  html += `</div>`;
+  document.getElementById('monthlyReportBody').innerHTML = html;
+  document.getElementById('monthlyReportModal').classList.add('show');
+}
+
+function closeMonthlyReport() {
+  document.getElementById('monthlyReportModal').classList.remove('show');
+}
+
+function printMonthlyReport() {
+  const content = document.getElementById('monthlyReportContent').innerHTML;
+  const w = window.open('', '_blank');
+  w.document.write(`<html><head><title>BNI สรุปรายเดือน</title><style>body{font-family:'IBM Plex Sans Thai',sans-serif;padding:20px;max-width:700px;margin:0 auto}h2{color:#7c3aed}div{break-inside:avoid}</style></head><body>${content}</body></html>`);
+  w.document.close();
+  w.print();
+}
+
+// ==================== CLEAR SUMMARY FILTERS ====================
+function clearSummaryFilters() {
+  document.getElementById('filterType').value = 'all';
+  document.getElementById('filterSearch').value = '';
+  document.getElementById('filterDateFrom').value = '';
+  document.getElementById('filterDateTo').value = '';
+  document.getElementById('filterConfirmedOnly').checked = false;
+  const notMetBy = document.getElementById('filterNotMetBy');
+  notMetBy.value = '';
+  notMetBy.style.display = 'none';
+  renderSummary();
+}
+
+// ==================== MEMBERS MANAGEMENT TAB ====================
+function renderMembersTab() {
+  const allMem = getAllMembers();
+  const filterType = document.getElementById('membersFilterType').value;
+  const search = document.getElementById('membersSearch').value.toLowerCase();
+  const presentLT = ltMembers.filter(m => !absentIds.has(m.id)).length;
+  const presentM = regularMembers.filter(m => !absentIds.has(m.id)).length;
+
+  document.getElementById('membersStats').innerHTML = `
+    <div class="stat-card"><div class="stat-num">${ltMembers.length}</div><div class="stat-label">LT (มา ${presentLT})</div></div>
+    <div class="stat-card"><div class="stat-num">${regularMembers.length}</div><div class="stat-label">MEMBER (มา ${presentM})</div></div>
+    <div class="stat-card"><div class="stat-num">${allMem.length}</div><div class="stat-label">รวมทั้งหมด</div></div>
+  `;
+
+  let filtered = allMem;
+  if (filterType === 'LT') filtered = filtered.filter(m => m.type === 'LT');
+  else if (filterType === 'MEMBER') filtered = filtered.filter(m => m.type === 'MEMBER');
+
+  if (search) {
+    filtered = filtered.filter(m =>
+      m.nickname.toLowerCase().includes(search) ||
+      m.name.toLowerCase().includes(search) ||
+      (m.display && m.display.toLowerCase().includes(search)) ||
+      (m.company && m.company.toLowerCase().includes(search)) ||
+      (m.lcd && m.lcd.toLowerCase().includes(search)) ||
+      (m.tags && m.tags.some(t => t.toLowerCase().includes(search)))
+    );
+  }
+
+  let tbody = '';
+  filtered.forEach(m => {
+    const isAbsent = absentIds.has(m.id);
+    const rowClass = isAbsent ? ' class="absent-row"' : '';
+    tbody += `<tr${rowClass}>
+      <td><input type="checkbox" class="absent-toggle" ${!isAbsent ? 'checked' : ''} onchange="toggleAbsent(${m.id})" title="${isAbsent ? 'ลาประชุม' : 'มาประชุม'}"></td>
+      <td>${getDisplayName(m)}</td>
+      <td>${m.name}</td>
+      <td><span class="role-tag ${m.type === 'LT' ? 'role-lt' : 'role-member'}">${m.type}</span></td>
+      <td style="font-size:12px">${m.company || '-'}</td>
+      <td style="font-size:12px">${m.lcd || '-'}</td>
+      <td style="font-size:11px">${(m.tags||[]).map(t=>`<span class="member-tag-chip">${t}</span>`).join(' ') || '-'}</td>
+      <td><div class="member-action-btns"><button class="btn-edit-member" onclick="showEditMemberForm(${m.id})">แก้ไข</button><button class="btn-delete-member" onclick="deleteMember(${m.id})">ลบ</button></div></td>
+    </tr>`;
+  });
+  document.getElementById('membersBody').innerHTML = tbody;
+
+  // Sync select-all checkbox
+  const selectAllEl = document.getElementById('selectAllAttendance');
+  if (selectAllEl) {
+    selectAllEl.checked = absentIds.size === 0;
+    selectAllEl.indeterminate = absentIds.size > 0 && absentIds.size < allMem.length;
+  }
+}
+
+let editingMemberId = null;
+
+function showAddMemberForm() {
+  editingMemberId = null;
+  document.getElementById('memberFormTitle').textContent = 'เพิ่มสมาชิกใหม่';
+  document.getElementById('formName').value = '';
+  document.getElementById('formNickname').value = '';
+  document.getElementById('formType').value = 'MEMBER';
+  document.getElementById('formCompany').value = '';
+  document.getElementById('formLcd').value = '';
+  document.getElementById('formTags').value = '';
+  document.getElementById('memberFormOverlay').classList.add('show');
+}
+
+function showEditMemberForm(id) {
+  const member = findMemberById(id);
+  if (!member) return;
+  editingMemberId = id;
+  document.getElementById('memberFormTitle').textContent = 'แก้ไขสมาชิก';
+  document.getElementById('formName').value = member.name;
+  document.getElementById('formNickname').value = member.nickname;
+  document.getElementById('formType').value = member.type;
+  document.getElementById('formCompany').value = member.company || '';
+  document.getElementById('formLcd').value = member.lcd || '';
+  document.getElementById('formTags').value = (member.tags || []).join(', ');
+  document.getElementById('memberFormOverlay').classList.add('show');
+}
+
+function hideMemberForm() {
+  editingMemberId = null;
+  document.getElementById('memberFormOverlay').classList.remove('show');
+}
+
+function saveMember() {
+  const name = document.getElementById('formName').value.trim();
+  const nickname = document.getElementById('formNickname').value.trim();
+  const type = document.getElementById('formType').value;
+  const company = document.getElementById('formCompany').value.trim();
+  const lcd = document.getElementById('formLcd').value.trim();
+  const tagsRaw = document.getElementById('formTags').value.trim();
+  const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(t => t) : [];
+
+  if (!name || !nickname) {
+    alert('กรุณาใส่ชื่อ-สกุล และชื่อเล่น');
+    return;
+  }
+
+  if (editingMemberId !== null) {
+    // Edit mode
+    const oldMember = findMemberById(editingMemberId);
+    if (!oldMember) return;
+    const oldType = oldMember.type;
+
+    oldMember.name = name;
+    oldMember.nickname = nickname;
+    oldMember.type = type;
+    oldMember.company = company;
+    oldMember.lcd = lcd;
+    oldMember.tags = tags;
+
+    // Check duplicate nickname
+    const allMem = getAllMembers();
+    const hasDuplicate = allMem.filter(m => m.nickname === nickname).length > 1;
+    if (hasDuplicate) {
+      const firstName = name.split(' ')[0];
+      oldMember.display = `${nickname} (${firstName})`;
+    } else {
+      delete oldMember.display;
+    }
+
+    // Handle type change LT ↔ MEMBER
+    if (oldType !== type) {
+      if (oldType === 'LT') {
+        ltMembers = ltMembers.filter(m => m.id !== editingMemberId);
+        regularMembers.push(oldMember);
+        usedLtIds.delete(editingMemberId);
+      } else {
+        regularMembers = regularMembers.filter(m => m.id !== editingMemberId);
+        ltMembers.push(oldMember);
+        usedMemberIds.delete(editingMemberId);
+      }
+      saveSession();
+    }
+  } else {
+    // Add mode
+    const newMember = { id: Date.now(), name, nickname, type, company, lcd, tags };
+    const allMem = getAllMembers();
+    const hasDuplicate = allMem.some(m => m.nickname === nickname);
+    if (hasDuplicate) {
+      const firstName = name.split(' ')[0];
+      newMember.display = `${nickname} (${firstName})`;
+    }
+    if (type === 'LT') ltMembers.push(newMember);
+    else regularMembers.push(newMember);
+  }
+
+  saveMemberData();
+  hideMemberForm();
+  renderMembersTab();
+  currentWheelCount = 0;
+  updatePoolStatus();
+  drawAllWheels();
+}
+
+function deleteMember(id) {
+  const member = findMemberById(id);
+  if (!member) return;
+  if (!confirm(`ต้องการลบ "${getDisplayName(member)}" (${member.name}) ออกจากรายชื่อ?`)) return;
+
+  ltMembers = ltMembers.filter(m => m.id !== id);
+  regularMembers = regularMembers.filter(m => m.id !== id);
+  saveMemberData();
+
+  // Remove from used pool if present
+  usedLtIds.delete(id);
+  usedMemberIds.delete(id);
+  saveSession();
+
+  // Cleanup orphan pair rules referencing this member
+  const rules = loadPairRules();
+  const cleanedRules = rules.filter(r => r.member1Id !== id && r.member2Id !== id);
+  if (cleanedRules.length !== rules.length) savePairRules(cleanedRules);
+
+  renderMembersTab();
+  currentWheelCount = 0;
+  updatePoolStatus();
+  drawAllWheels();
+}
+
+function resetMembersToDefault() {
+  if (!confirm('คืนข้อมูลสมาชิกทั้งหมดเป็นค่าเริ่มต้น 85 คน?\n(ข้อมูลที่เพิ่ม/ลบจะหายไป)')) return;
+  ltMembers = JSON.parse(JSON.stringify(DEFAULT_LT));
+  regularMembers = JSON.parse(JSON.stringify(DEFAULT_MEMBERS));
+  saveMemberData();
+
+  // Reset used pool too
+  usedLtIds = new Set();
+  usedMemberIds = new Set();
+  saveSession();
+
+  renderMembersTab();
+  currentWheelCount = 0;
+  updatePoolStatus();
+  drawAllWheels();
+}
+
+// ==================== BACKUP / RESTORE (2.5) ====================
+function exportBackup() {
+  const backup = {
+    _type: 'bni121_backup',
+    _date: new Date().toISOString(),
+    members: localStorage.getItem(MEMBERS_KEY),
+    session: localStorage.getItem(SESSION_KEY),
+    data: localStorage.getItem(STORAGE_KEY),
+    settings: localStorage.getItem(SETTINGS_KEY),
+    absent: localStorage.getItem(ABSENT_KEY),
+    pairrules: localStorage.getItem('bni121_pairrules'),
+    sync: localStorage.getItem('bni121_sync')
+  };
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `BNI_backup_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importBackup(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const backup = JSON.parse(e.target.result);
+      if (backup._type !== 'bni121_backup') {
+        alert('ไฟล์นี้ไม่ใช่ไฟล์สำรองข้อมูล BNI');
+        return;
+      }
+      if (!confirm('กู้คืนข้อมูลจากไฟล์สำรอง?\nข้อมูลปัจจุบันจะถูกแทนที่ทั้งหมด')) return;
+      if (backup.members) localStorage.setItem(MEMBERS_KEY, backup.members);
+      if (backup.session) localStorage.setItem(SESSION_KEY, backup.session);
+      if (backup.data) localStorage.setItem(STORAGE_KEY, backup.data);
+      if (backup.settings) localStorage.setItem(SETTINGS_KEY, backup.settings);
+      if (backup.absent) localStorage.setItem(ABSENT_KEY, backup.absent);
+      if (backup.pairrules) localStorage.setItem('bni121_pairrules', backup.pairrules);
+      if (backup.sync) localStorage.setItem('bni121_sync', backup.sync);
+      location.reload();
+    } catch(err) {
+      alert('ไม่สามารถอ่านไฟล์ได้: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// ==================== T2-3: CSV IMPORT ====================
+function importCSVMembers(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const text = e.target.result;
+      const lines = text.split(/\r?\n/).filter(l => l.trim());
+      if (lines.length < 2) { alert('CSV ต้องมีอย่างน้อย 1 แถวข้อมูล + หัวตาราง'); return; }
+
+      // Parse header to detect column mapping
+      const header = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
+      const colMap = {};
+      const nickAliases = ['ชื่อเล่น', 'nickname', 'nick'];
+      const nameAliases = ['ชื่อ-สกุล', 'ชื่อ', 'name', 'fullname', 'ชื่อ-นามสกุล'];
+      const typeAliases = ['ประเภท', 'type', 'role'];
+      const companyAliases = ['บริษัท', 'company'];
+      const lcdAliases = ['ธุรกิจ', 'lcd', 'business'];
+      const displayAliases = ['ชื่อแสดง', 'display', 'displayname'];
+
+      header.forEach((h, i) => {
+        if (nickAliases.includes(h)) colMap.nickname = i;
+        else if (nameAliases.includes(h)) colMap.name = i;
+        else if (typeAliases.includes(h)) colMap.type = i;
+        else if (companyAliases.includes(h)) colMap.company = i;
+        else if (lcdAliases.includes(h)) colMap.lcd = i;
+        else if (displayAliases.includes(h)) colMap.display = i;
+      });
+
+      if (colMap.nickname === undefined && colMap.name === undefined) {
+        alert('CSV ต้องมีคอลัมน์ "ชื่อเล่น" หรือ "ชื่อ"\nรองรับ: ชื่อเล่น, ชื่อ-สกุล, ประเภท, บริษัท, ธุรกิจ, ชื่อแสดง');
+        return;
+      }
+
+      function parseCSVLine(line) {
+        const result = [];
+        let current = '';
+        let inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+          if (line[i] === '"') { inQuotes = !inQuotes; continue; }
+          if (line[i] === ',' && !inQuotes) { result.push(current.trim()); current = ''; continue; }
+          current += line[i];
+        }
+        result.push(current.trim());
+        return result;
+      }
+
+      const newMembers = [];
+      let skipped = 0;
+      const maxId = Math.max(0, ...ltMembers.map(m => m.id), ...regularMembers.map(m => m.id));
+
+      for (let i = 1; i < lines.length; i++) {
+        const cols = parseCSVLine(lines[i]);
+        const nickname = cols[colMap.nickname] || '';
+        const name = cols[colMap.name] || nickname;
+        if (!nickname && !name) { skipped++; continue; }
+
+        const type = colMap.type !== undefined ? (cols[colMap.type] || '').toUpperCase() : 'MEMBER';
+        const memberType = (type === 'LT' || type === 'LEADERSHIP TEAM') ? 'LT' : 'MEMBER';
+
+        newMembers.push({
+          id: maxId + newMembers.length + 1,
+          nickname: nickname || name,
+          name: name || nickname,
+          display: colMap.display !== undefined ? (cols[colMap.display] || '') : '',
+          type: memberType,
+          company: colMap.company !== undefined ? (cols[colMap.company] || '') : '',
+          lcd: colMap.lcd !== undefined ? (cols[colMap.lcd] || '') : ''
+        });
+      }
+
+      if (newMembers.length === 0) { alert('ไม่พบข้อมูลสมาชิกใน CSV'); return; }
+
+      const ltCount = newMembers.filter(m => m.type === 'LT').length;
+      const mCount = newMembers.filter(m => m.type === 'MEMBER').length;
+      if (!confirm(`นำเข้า ${newMembers.length} คน (${ltCount} LT, ${mCount} MEMBER)\nข้อมูลจะถูกเพิ่มเข้าไปในรายชื่อที่มีอยู่`)) return;
+
+      newMembers.forEach(m => {
+        if (m.type === 'LT') ltMembers.push(m);
+        else regularMembers.push(m);
+      });
+
+      saveMemberData();
+      renderMembersTab();
+      updatePoolStatus();
+      currentWheelCount = 0;
+      drawAllWheels();
+      alert(`นำเข้าสำเร็จ: ${newMembers.length} คน`);
+    } catch(err) {
+      alert('ไม่สามารถอ่านไฟล์ CSV ได้: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// ==================== PAIR FREQUENCY / MATRIX (1.1 + 2.3) ====================
+function buildPairMatrix(optSpins) {
+  const data = loadData();
+  const confirmedOnly = document.getElementById('filterConfirmedOnly') && document.getElementById('filterConfirmedOnly').checked;
+  let spins = optSpins || data.spins;
+
+  // Date range filtering
+  const fromEl = document.getElementById('filterDateFrom');
+  const toEl = document.getElementById('filterDateTo');
+  if (fromEl && fromEl.value) {
+    const from = new Date(fromEl.value);
+    spins = spins.filter(s => new Date(s.timestamp) >= from);
+  }
+  if (toEl && toEl.value) {
+    const to = new Date(toEl.value);
+    to.setHours(23, 59, 59, 999);
+    spins = spins.filter(s => new Date(s.timestamp) <= to);
+  }
+
+  if (confirmedOnly) {
+    spins = spins.map(spin => ({
+      ...spin,
+      groups: spin.groups.filter(g => g.confirmed)
+    })).filter(spin => spin.groups.length > 0);
+  }
+
+  const freq = new Map();   // id -> Map(partnerId -> count)
+  const lastMet = new Map(); // id -> Map(partnerId -> dateString)
+  const pairCount = {};      // id -> total group count
+
+  const allMem = getAllMembers();
+  allMem.forEach(m => {
+    freq.set(m.id, new Map());
+    lastMet.set(m.id, new Map());
+    pairCount[m.id] = 0;
+  });
+
+  spins.forEach(spin => {
+    spin.groups.forEach(g => {
+      const groupIds = getGroupAllIds(g);
+      groupIds.forEach(id => {
+        pairCount[id] = (pairCount[id] || 0) + 1;
+        groupIds.forEach(otherId => {
+          if (otherId !== id) {
+            if (!freq.has(id)) freq.set(id, new Map());
+            const fm = freq.get(id);
+            fm.set(otherId, (fm.get(otherId) || 0) + 1);
+
+            if (!lastMet.has(id)) lastMet.set(id, new Map());
+            const lm = lastMet.get(id);
+            const existing = lm.get(otherId);
+            if (!existing || spin.timestamp > existing) {
+              lm.set(otherId, spin.timestamp);
+            }
+          }
+        });
+      });
+    });
+  });
+
+  return { freq, lastMet, pairCount, spins };
+}
+
+// ==================== MEETING CONFIRMATION (2.2) ====================
+function toggleGroupConfirm(spinId, groupNumber) {
+  const data = loadData();
+  const spin = data.spins.find(s => s.id === spinId);
+  if (!spin) return;
+  const group = spin.groups.find(g => g.groupNumber === groupNumber);
+  if (!group) return;
+  group.confirmed = !group.confirmed;
+  saveData(data);
+  renderHistory();
+}
+
+// ==================== INVERSE VIEW MODAL (1.4) ====================
+function showMemberDetail(memberId) {
+  const matrix = buildPairMatrix();
+  const member = findMemberById(memberId);
+  if (!member) return;
+  const allMem = getAllMembers();
+  const freqMap = matrix.freq.get(memberId) || new Map();
+  const lastMetMap = matrix.lastMet.get(memberId) || new Map();
+
+  const paired = [];
+  const notMet = [];
+
+  allMem.forEach(m => {
+    if (m.id === memberId) return;
+    const count = freqMap.get(m.id);
+    if (count && count > 0) {
+      const lm = lastMetMap.get(m.id);
+      const lmStr = lm ? new Date(lm).toLocaleDateString('th-TH', { year:'numeric', month:'short', day:'numeric' }) : '-';
+      paired.push({ member: m, count, lastMet: lmStr });
+    } else {
+      notMet.push(m);
+    }
+  });
+
+  paired.sort((a, b) => b.count - a.count);
+
+  // Gather notes for this member's meetings
+  const memberNotes = getNotesForMember(memberId);
+
+  let html = `<div class="section-title green">เคยจับคู่กับ (${paired.length} คน)</div><div class="paired-list">`;
+  if (paired.length === 0) html += '<div style="color:#999;padding:8px 0;">ยังไม่เคยจับคู่กับใครเลย</div>';
+  paired.forEach(p => {
+    const pairNotes = memberNotes.filter(n => n.partnerIds.includes(p.member.id));
+    let notesHtml = '';
+    if (pairNotes.length > 0) {
+      notesHtml = pairNotes.map(n => `<div class="notes-display" style="margin-top:4px;font-size:11px">${n.notes.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`).join('');
+    }
+    html += `<div class="pair-item" style="flex-direction:column;align-items:stretch"><div style="display:flex;justify-content:space-between;align-items:center"><span>${getDisplayName(p.member)} <small style="color:#888">(${p.member.type})</small></span><span>${p.count} ครั้ง | ล่าสุด ${p.lastMet}</span></div>${notesHtml}</div>`;
+  });
+  html += '</div>';
+
+  html += `<div class="section-title">ยังไม่เคยเจอ (${notMet.length} คน)</div><div class="not-met-list">`;
+  if (notMet.length === 0) html += '<div style="color:#28a745;padding:8px 0;">เจอครบทุกคนแล้ว!</div>';
+  notMet.forEach(m => {
+    html += `<div class="pair-item"><span>${getDisplayName(m)}</span><span style="color:#888">${m.type}</span></div>`;
+  });
+  html += '</div>';
+
+  document.getElementById('modalMemberName').textContent = `${getDisplayName(member)} (${member.type})`;
+  document.getElementById('modalMemberBody').innerHTML = html;
+  document.getElementById('memberDetailModal').classList.add('show');
+}
+
+function closeMemberDetailModal() {
+  document.getElementById('memberDetailModal').classList.remove('show');
+}
+
+// ==================== SMART PAIRING (1.2) ====================
+function smartPickMembers(availMembers, groupLt, alreadyPicked, matrix, count) {
+  const picked = [];
+  const reasons = []; // T2-1: track reasons per pick
+  const candidates = availMembers.filter(m => !alreadyPicked.has(m.id));
+  const rules = loadPairRules();
+
+  for (let i = 0; i < count && candidates.length > 0; i++) {
+    let bestIdx = -1;
+    let bestScore = Infinity;
+    let bestReasons = [];
+
+    candidates.forEach((cand, idx) => {
+      let score = 0;
+      const candReasons = [];
+      // Score against LT
+      if (groupLt) {
+        const ltFreq = matrix.freq.get(groupLt.id);
+        const ltMet = ltFreq ? (ltFreq.get(cand.id) || 0) : 0;
+        score += ltMet;
+        if (ltMet === 0) candReasons.push('ยังไม่เคยเจอ ' + getDisplayName(groupLt));
+        else candReasons.push('เจอ ' + getDisplayName(groupLt) + ' ' + ltMet + ' ครั้ง');
+      }
+      // Score against already picked members in this group
+      picked.forEach(p => {
+        const pFreq = matrix.freq.get(p.id);
+        const pMet = pFreq ? (pFreq.get(cand.id) || 0) : 0;
+        score += pMet;
+      });
+
+      // Apply pair rules (Feature F)
+      const groupIds = [...(groupLt ? [groupLt.id] : []), ...picked.map(p => p.id)];
+      let hasRule = false;
+      rules.forEach(rule => {
+        const ids = [rule.member1Id, rule.member2Id];
+        if (ids.includes(cand.id)) {
+          const otherId = ids.find(id => id !== cand.id);
+          if (groupIds.includes(otherId)) {
+            if (rule.type === 'exclude') { score += 1000; candReasons.push('กฎห้ามจับคู่'); hasRule = true; }
+            if (rule.type === 'lock') { score -= 100; candReasons.push('กฎล็อคคู่'); hasRule = true; }
+          }
+        }
+      });
+
+      // Add randomness to avoid being deterministic
+      score += Math.random() * 0.5;
+
+      if (score < bestScore) {
+        bestScore = score;
+        bestIdx = idx;
+        bestReasons = candReasons;
+      }
+    });
+
+    if (bestIdx >= 0) {
+      picked.push(candidates[bestIdx]);
+      reasons.push({ member: candidates[bestIdx], score: Math.round(bestScore * 10) / 10, reasons: bestReasons });
+      candidates.splice(bestIdx, 1);
+    }
+  }
+  picked._smartReasons = reasons; // attach reasons to the array
+  return picked;
+}
+
+// ==================== RELATIONSHIP HEATMAP (2.1) ====================
+function renderHeatmap() {
+  const section = document.getElementById('heatmapSection');
+  if (!section) return;
+  const matrix = buildPairMatrix();
+  const allMem = getAllMembers();
+
+  // Filter control
+  const heatmapFilter = document.getElementById('heatmapFilter');
+  const filterVal = heatmapFilter ? heatmapFilter.value : 'all';
+
+  let members = allMem;
+  if (filterVal === 'LT') members = allMem.filter(m => m.type === 'LT');
+  else if (filterVal === 'MEMBER') members = allMem.filter(m => m.type === 'MEMBER');
+
+  members.sort((a, b) => {
+    if (a.type !== b.type) return a.type === 'LT' ? -1 : 1;
+    return (a.nickname || '').localeCompare(b.nickname || '', 'th');
+  });
+
+  const n = members.length;
+  if (n === 0) { section.innerHTML = ''; return; }
+
+  const cellSize = n > 50 ? 10 : n > 30 ? 14 : 20;
+  const labelSpace = 80;
+  const canvasW = labelSpace + n * cellSize + 10;
+  const canvasH = labelSpace + n * cellSize + 10;
+
+  let html = '<h3 style="margin:20px 0 8px;color:#202124;">แผนภาพความสัมพันธ์</h3>';
+  html += '<div class="heatmap-container">';
+  html += '<div class="heatmap-controls">';
+  html += `<select id="heatmapFilter" onchange="renderHeatmap()">
+    <option value="all"${filterVal === 'all' ? ' selected' : ''}>ทุกคน</option>
+    <option value="LT"${filterVal === 'LT' ? ' selected' : ''}>เฉพาะ LT</option>
+    <option value="MEMBER"${filterVal === 'MEMBER' ? ' selected' : ''}>เฉพาะ MEMBER</option>
+  </select>`;
+  html += '</div>';
+  html += `<div style="overflow:auto;max-height:600px;"><canvas id="heatmapCanvas" width="${canvasW}" height="${canvasH}"></canvas></div>`;
+  html += '<div class="heatmap-legend"><span style="background:#fff"></span>ไม่เคยเจอ <span style="background:#fff3cd"></span>1 ครั้ง <span style="background:#f39c12"></span>2-3 ครั้ง <span style="background:#c0392b"></span>4+ ครั้ง</div>';
+  html += '</div>';
+  section.innerHTML = html;
+
+  const canvas = document.getElementById('heatmapCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvasW, canvasH);
+
+  // Draw labels
+  ctx.font = (cellSize > 12 ? 10 : 8) + 'px sans-serif';
+  ctx.fillStyle = '#444';
+  members.forEach((m, i) => {
+    ctx.save();
+    ctx.translate(labelSpace + i * cellSize + cellSize / 2, labelSpace - 4);
+    ctx.rotate(-Math.PI / 4);
+    ctx.textAlign = 'left';
+    ctx.fillText(getDisplayName(m).slice(0, 6), 0, 0);
+    ctx.restore();
+
+    ctx.textAlign = 'right';
+    ctx.fillText(getDisplayName(m).slice(0, 6), labelSpace - 4, labelSpace + i * cellSize + cellSize / 2 + 3);
+  });
+
+  // Draw cells
+  members.forEach((mRow, row) => {
+    members.forEach((mCol, col) => {
+      if (mRow.id === mCol.id) {
+        ctx.fillStyle = '#e0e0e0';
+      } else {
+        const fm = matrix.freq.get(mRow.id);
+        const count = fm ? (fm.get(mCol.id) || 0) : 0;
+        if (count === 0) ctx.fillStyle = '#ffffff';
+        else if (count === 1) ctx.fillStyle = '#fff3cd';
+        else if (count <= 3) ctx.fillStyle = '#f39c12';
+        else ctx.fillStyle = '#c0392b';
+      }
+      ctx.fillRect(labelSpace + col * cellSize, labelSpace + row * cellSize, cellSize - 1, cellSize - 1);
+    });
+  });
+
+  // Hover tooltip
+  const tooltip = document.getElementById('heatmapTooltip');
+  canvas.onmousemove = function(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scrollLeft = canvas.parentElement.scrollLeft;
+    const scrollTop = canvas.parentElement.scrollTop;
+    const x = e.clientX - rect.left + scrollLeft;
+    const y = e.clientY - rect.top + scrollTop;
+    const col = Math.floor((x - labelSpace) / cellSize);
+    const row = Math.floor((y - labelSpace) / cellSize);
+
+    if (col >= 0 && col < n && row >= 0 && row < n && row !== col) {
+      const mRow = members[row];
+      const mCol = members[col];
+      const fm = matrix.freq.get(mRow.id);
+      const count = fm ? (fm.get(mCol.id) || 0) : 0;
+      const lm = matrix.lastMet.get(mRow.id);
+      const lastMetStr = lm && lm.get(mCol.id) ? new Date(lm.get(mCol.id)).toLocaleDateString('th-TH', { year:'numeric', month:'short', day:'numeric' }) : '-';
+      tooltip.textContent = `${getDisplayName(mRow)} × ${getDisplayName(mCol)}: ${count} ครั้ง (ล่าสุด ${lastMetStr})`;
+      tooltip.style.display = 'block';
+      tooltip.style.left = (e.clientX + 12) + 'px';
+      tooltip.style.top = (e.clientY + 12) + 'px';
+    } else {
+      tooltip.style.display = 'none';
+    }
+  };
+  canvas.onmouseleave = function() { tooltip.style.display = 'none'; };
+}
+
+// ==================== FEATURE A: PRINT / SHARE ====================
+function formatGroupsForShare(groups, roundNumber) {
+  let text = `BNI 1-2-1 จับคู่`;
+  if (roundNumber) text += ` | รอบที่ ${roundNumber}`;
+  text += `\n${new Date().toLocaleDateString('th-TH', { year:'numeric', month:'short', day:'numeric' })}\n`;
+  text += '─'.repeat(24) + '\n';
+  groups.forEach(g => {
+    const memberNames = g.members.map(m => m.display || m.nickname).join(', ');
+    if (g.lt) {
+      text += `กลุ่ม ${g.groupNumber}: ${g.lt.display || g.lt.nickname}(LT) + ${memberNames}\n`;
+    } else {
+      text += `กลุ่ม ${g.groupNumber}: ${memberNames} (Member)\n`;
+    }
+  });
+  return text;
+}
+
+function formatSpinForShare(groups, roundNumber) {
+  return formatGroupsForShare(groups, roundNumber);
+}
+
+function copyHistorySpin(spinId, roundNumber) {
+  const data = loadData();
+  const spin = data.spins.find(s => s.id === spinId);
+  if (!spin) return;
+  copyShareText(formatSpinForShare(spin.groups, roundNumber));
+}
+
+function formatAllRoundsForShare(roundsData) {
+  let text = `BNI 1-2-1 จับคู่ทั้งหมด\n${new Date().toLocaleDateString('th-TH', { year:'numeric', month:'short', day:'numeric' })}\n`;
+  text += '═'.repeat(24) + '\n';
+  roundsData.forEach(rd => {
+    text += `\n📌 รอบที่ ${rd.roundNumber}\n`;
+    text += '─'.repeat(24) + '\n';
+    rd.groups.forEach(g => {
+      const memberNames = g.members.map(m => m.display || m.nickname).join(', ');
+      if (g.lt) {
+        text += `กลุ่ม ${g.groupNumber}: ${g.lt.display || g.lt.nickname}(LT) + ${memberNames}\n`;
+      } else {
+        text += `กลุ่ม ${g.groupNumber}: ${memberNames} (Member)\n`;
+      }
+    });
+  });
+  return text;
+}
+
+function copyShareText(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    const toast = document.getElementById('shareToast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2000);
+  }).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    const toast = document.getElementById('shareToast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2000);
+  });
+}
+
+function printResults() {
+  window.print();
+}
+
+// ==================== FEATURE F: LOCK / EXCLUDE PAIRS ====================
+const PAIRRULES_KEY = 'bni121_pairrules';
+
+function loadPairRules() {
+  try {
+    const raw = localStorage.getItem(PAIRRULES_KEY);
+    if (raw) { const d = JSON.parse(raw); return d.rules || []; }
+  } catch(e) {}
+  return [];
+}
+
+function savePairRules(rules) {
+  localStorage.setItem(PAIRRULES_KEY, JSON.stringify({ rules }));
+}
+
+function renderPairRules() {
+  const rules = loadPairRules();
+  const el = document.getElementById('pairRulesList');
+  if (!el) return;
+  if (rules.length === 0) {
+    el.innerHTML = '<div style="color:#9ca3af;font-size:13px;padding:8px 0;">ยังไม่มีกฎจับคู่</div>';
+    return;
+  }
+  let html = '';
+  rules.forEach(r => {
+    const m1 = findMemberById(r.member1Id);
+    const m2 = findMemberById(r.member2Id);
+    const name1 = m1 ? getDisplayName(m1) : '?';
+    const name2 = m2 ? getDisplayName(m2) : '?';
+    const typeLabel = r.type === 'exclude' ? 'ห้ามจับคู่' : 'ล็อคคู่';
+    const typeClass = r.type === 'exclude' ? 'rule-type-exclude' : 'rule-type-lock';
+    html += `<div class="pair-rule-item">
+      <span class="rule-type ${typeClass}">${typeLabel}</span>
+      <span style="flex:1">${name1} ↔ ${name2}</span>
+      ${r.reason ? `<span class="rule-reason">${r.reason}</span>` : ''}
+      <button class="btn-delete-rule" onclick="deletePairRule('${r.id}')" title="ลบ">&times;</button>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+function showAddPairRuleForm() {
+  const allMem = getAllMembers();
+  const select1 = document.getElementById('ruleMember1');
+  const select2 = document.getElementById('ruleMember2');
+  select1.innerHTML = '';
+  select2.innerHTML = '';
+  allMem.forEach(m => {
+    const opt = `<option value="${m.id}">${getDisplayName(m)} (${m.type})</option>`;
+    select1.innerHTML += opt;
+    select2.innerHTML += opt;
+  });
+  if (allMem.length > 1) select2.value = allMem[1].id;
+  document.getElementById('ruleType').value = 'exclude';
+  document.getElementById('ruleReason').value = '';
+  document.getElementById('ruleFormOverlay').classList.add('show');
+}
+
+function hideRuleForm() {
+  document.getElementById('ruleFormOverlay').classList.remove('show');
+}
+
+function savePairRule() {
+  const type = document.getElementById('ruleType').value;
+  const m1Id = parseInt(document.getElementById('ruleMember1').value);
+  const m2Id = parseInt(document.getElementById('ruleMember2').value);
+  const reason = document.getElementById('ruleReason').value.trim();
+
+  if (m1Id === m2Id) { alert('กรุณาเลือกสมาชิกคนละคน'); return; }
+
+  const rules = loadPairRules();
+  rules.push({ id: 'rule_' + Date.now(), type, member1Id: m1Id, member2Id: m2Id, reason });
+  savePairRules(rules);
+  hideRuleForm();
+  renderPairRules();
+  syncPush();
+}
+
+function deletePairRule(ruleId) {
+  let rules = loadPairRules();
+  rules = rules.filter(r => r.id !== ruleId);
+  savePairRules(rules);
+  renderPairRules();
+  syncPush();
+}
+
+function applyPairRules(groups) {
+  const rules = loadPairRules();
+  if (rules.length === 0) return;
+
+  // Try to fix exclude violations by swapping members between groups
+  for (let attempt = 0; attempt < 20; attempt++) {
+    let violated = false;
+    for (const rule of rules) {
+      if (rule.type !== 'exclude') continue;
+      for (const g of groups) {
+        const allIds = getGroupAllIds(g);
+        if (allIds.includes(rule.member1Id) && allIds.includes(rule.member2Id)) {
+          violated = true;
+          // Try swapping member2 with someone from another group
+          const m2Idx = g.members.findIndex(m => m.id === rule.member2Id);
+          if (m2Idx === -1) continue;
+          let swapped = false;
+          for (const otherG of groups) {
+            if (otherG === g) continue;
+            for (let oi = 0; oi < otherG.members.length; oi++) {
+              const otherAllIds = getGroupAllIds(otherG);
+              // Check this swap wouldn't create new violation
+              const wouldViolate = rules.some(r => {
+                if (r.type !== 'exclude') return false;
+                const newGIds = [...allIds.filter(id => id !== rule.member2Id), otherG.members[oi].id];
+                const newOtherIds = [...otherAllIds.filter(id => id !== otherG.members[oi].id), g.members[m2Idx].id];
+                return (newGIds.includes(r.member1Id) && newGIds.includes(r.member2Id)) ||
+                       (newOtherIds.includes(r.member1Id) && newOtherIds.includes(r.member2Id));
+              });
+              if (!wouldViolate) {
+                const temp = g.members[m2Idx];
+                g.members[m2Idx] = otherG.members[oi];
+                otherG.members[oi] = temp;
+                swapped = true;
+                break;
+              }
+            }
+            if (swapped) break;
+          }
+        }
+      }
+    }
+    if (!violated) break;
+  }
+}
+
+// ==================== FEATURE B: MEETING NOTES ====================
+let notesEditingSpinId = null;
+let notesEditingGroupNumber = null;
+
+function showNotesForm(spinId, groupNumber) {
+  notesEditingSpinId = spinId;
+  notesEditingGroupNumber = groupNumber;
+  const data = loadData();
+  const spin = data.spins.find(s => s.id === spinId);
+  if (!spin) return;
+  const group = spin.groups.find(g => g.groupNumber === groupNumber);
+  if (!group) return;
+  const memberNames = [...(group.lt ? [group.lt.display || group.lt.nickname] : []), ...group.members.map(m => m.display || m.nickname)].join(', ');
+  document.getElementById('notesFormTitle').textContent = `บันทึก: ${memberNames}`;
+  document.getElementById('notesTextarea').value = group.notes || '';
+  document.getElementById('notesFormOverlay').classList.add('show');
+  document.getElementById('notesTextarea').focus();
+}
+
+function hideNotesForm() {
+  notesEditingSpinId = null;
+  notesEditingGroupNumber = null;
+  document.getElementById('notesFormOverlay').classList.remove('show');
+}
+
+function saveNotes() {
+  if (!notesEditingSpinId) return;
+  const data = loadData();
+  const spin = data.spins.find(s => s.id === notesEditingSpinId);
+  if (!spin) return;
+  const group = spin.groups.find(g => g.groupNumber === notesEditingGroupNumber);
+  if (!group) return;
+  group.notes = document.getElementById('notesTextarea').value.trim();
+  saveData(data);
+  hideNotesForm();
+  renderHistory();
+  syncPush();
+}
+
+// ==================== T2-5: FOLLOW-UP REMINDERS ====================
+function toggleFollowUp(spinId, groupNumber) {
+  const data = loadData();
+  const spin = data.spins.find(s => s.id === spinId);
+  if (!spin) return;
+  const group = spin.groups.find(g => g.groupNumber === groupNumber);
+  if (!group) return;
+  group.followedUp = !group.followedUp;
+  saveData(data);
+  renderHistory();
+  syncPush();
+}
+
+// ==================== T3-5: REFERRAL TRACKING ====================
+function promptReferral(spinId, groupNumber) {
+  const data = loadData();
+  const spin = data.spins.find(s => s.id === spinId);
+  if (!spin) return;
+  const group = spin.groups.find(g => g.groupNumber === groupNumber);
+  if (!group) return;
+  const current = group.referrals || 0;
+  const val = prompt(`จำนวน Referral จากกลุ่มนี้ (ปัจจุบัน: ${current})`, current);
+  if (val === null) return;
+  const num = parseInt(val);
+  if (isNaN(num) || num < 0) return;
+  group.referrals = num;
+  saveData(data);
+  renderHistory();
+  syncPush();
+}
+
+function getTotalReferrals() {
+  const data = loadData();
+  let total = 0;
+  data.spins.forEach(s => s.groups.forEach(g => { total += (g.referrals || 0); }));
+  return total;
+}
+
+function getMemberReferrals(memberId) {
+  const data = loadData();
+  let total = 0;
+  data.spins.forEach(spin => {
+    spin.groups.forEach(g => {
+      if ((g.referrals || 0) > 0) {
+        const allIds = getGroupAllIds(g);
+        if (allIds.includes(memberId)) total += g.referrals;
+      }
+    });
+  });
+  return total;
+}
+
+function getFollowUpStats() {
+  const data = loadData();
+  let pending = 0, done = 0;
+  data.spins.forEach(spin => {
+    spin.groups.forEach(g => {
+      if (g.confirmed) {
+        if (g.followedUp) done++;
+        else pending++;
+      }
+    });
+  });
+  return { pending, done };
+}
+
+function getNotesForMember(memberId) {
+  const data = loadData();
+  const results = [];
+  data.spins.forEach(spin => {
+    spin.groups.forEach(g => {
+      if (!g.notes || !g.notes.trim()) return;
+      const allIds = getGroupAllIds(g);
+      if (allIds.includes(memberId)) {
+        results.push({ notes: g.notes, partnerIds: allIds.filter(id => id !== memberId), date: spin.timestamp });
+      }
+    });
+  });
+  return results;
+}
+
+// ==================== FEATURE G: DARK MODE ====================
+function loadDarkMode() {
+  const s = loadSettings();
+  if (s.darkMode) {
+    document.body.classList.add('dark');
+    updateDarkModeBtn();
+  }
+}
+
+function toggleDarkMode() {
+  document.body.classList.toggle('dark');
+  const s = loadSettings();
+  s.darkMode = document.body.classList.contains('dark');
+  saveSettings(s);
+  updateDarkModeBtn();
+}
+
+function updateDarkModeBtn() {
+  const btn = document.getElementById('darkModeBtn');
+  if (!btn) return;
+  btn.innerHTML = document.body.classList.contains('dark') ? '&#9728;&#65039;' : '&#127769;';
+}
+
+// ==================== FEATURE C: DASHBOARD KPI ====================
+function renderDashboard() {
+  const section = document.getElementById('dashboardSection');
+  if (!section) return;
+
+  const data = loadData();
+  const allSpins = data.spins;
+  const allMem = getAllMembers();
+
+  if (allSpins.length === 0) {
+    section.innerHTML = '';
+    return;
+  }
+
+  const matrix = buildPairMatrix();
+  const totalSpins = allSpins.length;
+  const pairedMembers = allMem.filter(m => matrix.pairCount[m.id] > 0).length;
+  const pairingPct = allMem.length > 0 ? Math.round((pairedMembers / allMem.length) * 100) : 0;
+  const confirmedGroups = allSpins.reduce((sum, s) => sum + s.groups.filter(g => g.confirmed).length, 0);
+  const totalGroups = allSpins.reduce((sum, s) => sum + s.groups.length, 0);
+  const confirmPct = totalGroups > 0 ? Math.round((confirmedGroups / totalGroups) * 100) : 0;
+
+  // Top 5 active members
+  const memberCounts = allMem.map(m => ({ member: m, count: matrix.pairCount[m.id] || 0 }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+
+  // Never paired alert
+  const neverPaired = allMem.filter(m => !matrix.pairCount[m.id]);
+
+  // Weekly trend (8 weeks)
+  const weeklyData = buildWeeklyTrend(allSpins);
+
+  let html = '';
+
+  // Avg attendance rate
+  const attendRates = allMem.map(m => totalSpins > 0 ? (matrix.pairCount[m.id] || 0) / totalSpins * 100 : 0);
+  const avgAttendPct = attendRates.length > 0 ? Math.round(attendRates.reduce((a, b) => a + b, 0) / attendRates.length) : 0;
+  const lowAttendCount = attendRates.filter(r => r < 30).length;
+
+  // T2-4: Pairing diversity % (unique pairs met vs total possible)
+  let metPairCount = 0;
+  const totalPossiblePairs = allMem.length * (allMem.length - 1) / 2;
+  for (let i = 0; i < allMem.length; i++) {
+    const aFreq = matrix.freq.get(allMem[i].id);
+    if (!aFreq) continue;
+    for (let j = i + 1; j < allMem.length; j++) {
+      if (aFreq.has(allMem[j].id)) metPairCount++;
+    }
+  }
+  const diversityPct = totalPossiblePairs > 0 ? Math.round((metPairCount / totalPossiblePairs) * 100) : 0;
+
+  // T2-2: Avg health score
+  const monthlyTarget = getMonthlyTarget();
+  const healthScores = allMem.map(m => calcHealthScore(m.id, matrix, totalSpins, monthlyTarget).health);
+  const avgHealth = healthScores.length > 0 ? Math.round(healthScores.reduce((a, b) => a + b, 0) / healthScores.length) : 0;
+
+  // T3-5: Total referrals
+  const totalReferrals = getTotalReferrals();
+
+  // KPI Cards
+  html += '<div class="kpi-cards">';
+  html += `<div class="kpi-card"><div class="kpi-num">${pairingPct}%</div><div class="kpi-label">จับคู่แล้ว</div></div>`;
+  html += `<div class="kpi-card"><div class="kpi-num">${diversityPct}%</div><div class="kpi-label">ความหลากหลาย</div></div>`;
+  html += `<div class="kpi-card"><div class="kpi-num">${avgAttendPct}%</div><div class="kpi-label">เฉลี่ยเข้าร่วม</div></div>`;
+  html += `<div class="kpi-card"><div class="kpi-num">${healthBadgeHTML(avgHealth)}</div><div class="kpi-label">สุขภาพเฉลี่ย</div></div>`;
+  html += `<div class="kpi-card"><div class="kpi-num">${totalReferrals}</div><div class="kpi-label">Referrals</div></div>`;
+  html += '</div>';
+
+  html += '<div class="dashboard-row">';
+
+  // Top 5
+  html += '<div class="dashboard-col">';
+  html += '<h4 style="font-size:15px;font-weight:700;margin-bottom:8px;">Top 5 Active</h4>';
+  html += '<div class="top5-list">';
+  memberCounts.forEach((mc, i) => {
+    html += `<div class="top5-item"><span class="top5-rank">${i + 1}</span><span style="flex:1">${getDisplayName(mc.member)} <small style="color:#888">(${mc.member.type})</small></span><span style="font-weight:700">${mc.count} ครั้ง</span></div>`;
+  });
+  html += '</div></div>';
+
+  // Trend chart
+  html += '<div class="dashboard-col">';
+  html += '<h4 style="font-size:15px;font-weight:700;margin-bottom:8px;">กิจกรรมรายสัปดาห์</h4>';
+  html += '<div class="trend-chart-container"><canvas id="trendChart" width="400" height="160"></canvas></div>';
+  html += '</div>';
+
+  html += '</div>';
+
+  // Never-met pairs alert (Top 5 pairs that have never met)
+  const neverMetPairs = [];
+  for (let i = 0; i < allMem.length; i++) {
+    for (let j = i + 1; j < allMem.length; j++) {
+      const a = allMem[i], b = allMem[j];
+      const aFreq = matrix.freq.get(a.id);
+      if (!aFreq || !aFreq.has(b.id)) {
+        neverMetPairs.push({ a, b });
+        if (neverMetPairs.length >= 100) break; // cap for performance
+      }
+    }
+    if (neverMetPairs.length >= 100) break;
+  }
+
+  if (neverMetPairs.length > 0) {
+    const topPairs = neverMetPairs.slice(0, 5);
+    const totalNever = neverMetPairs.length;
+    const totalPossible = allMem.length * (allMem.length - 1) / 2;
+    html += `<div class="alert-box alert-box-warning">`;
+    html += `<div style="font-weight:700;margin-bottom:6px;">คู่ที่ยังไม่เคยเจอกัน (${totalNever >= 100 ? '100+' : totalNever} จาก ${totalPossible} คู่)</div>`;
+    html += topPairs.map(p => `<span style="display:inline-block;background:#fff7ed;padding:2px 8px;border-radius:12px;margin:2px;font-size:12px;">${getDisplayName(p.a)} ↔ ${getDisplayName(p.b)}</span>`).join('');
+    if (totalNever > 5) html += `<span style="font-size:12px;color:#92400e;margin-left:4px;">+${totalNever - 5} คู่</span>`;
+    html += `</div>`;
+  }
+
+  if (neverPaired.length > 0) {
+    html += `<div class="alert-box" style="background:#fffbeb;border-left:4px solid #f59e0b;padding:12px 16px;border-radius:8px;margin-top:10px;font-size:13px;color:#92400e;">สมาชิกที่ยังไม่เคยถูกจับคู่เลย: ${neverPaired.map(m => getDisplayName(m)).join(', ')}</div>`;
+  }
+
+  // Low attendance alert
+  if (lowAttendCount > 0 && totalSpins >= 3) {
+    const lowMembers = allMem.filter(m => totalSpins > 0 && (matrix.pairCount[m.id] || 0) / totalSpins * 100 < 30)
+      .sort((a, b) => (matrix.pairCount[a.id] || 0) - (matrix.pairCount[b.id] || 0))
+      .slice(0, 5);
+    html += `<div class="alert-box" style="background:#fef2f2;border-left:4px solid #ef4444;padding:12px 16px;border-radius:8px;margin-top:10px;font-size:13px;color:#991b1b;">เข้าร่วมน้อย (<30%): ${lowMembers.map(m => getDisplayName(m) + ' ' + Math.round((matrix.pairCount[m.id]||0)/totalSpins*100) + '%').join(', ')}</div>`;
+  }
+
+  // T2-5: Follow-up reminders summary
+  const fuStats = getFollowUpStats();
+  if (fuStats.pending > 0) {
+    html += `<div class="alert-box" style="background:#fffbeb;border-left:4px solid #f59e0b;padding:12px 16px;border-radius:8px;margin-top:10px;font-size:13px;color:#92400e;">รอติดตาม: ${fuStats.pending} กลุ่ม (ติดตามแล้ว ${fuStats.done})</div>`;
+  }
+
+  // T3-4: Dropout risk alert
+  const dropoutRisk = getDropoutRiskMembers();
+  if (dropoutRisk.length > 0 && totalSpins >= 3) {
+    const top5Risk = dropoutRisk.slice(0, 5);
+    html += `<div class="alert-box" style="background:#fef2f2;border-left:4px solid #dc2626;padding:12px 16px;border-radius:8px;margin-top:10px;font-size:13px;color:#991b1b;">`;
+    html += `<div style="font-weight:700;margin-bottom:4px;">เสี่ยงหลุด (ไม่เข้าร่วม 4+ สัปดาห์) — ${dropoutRisk.length} คน</div>`;
+    html += top5Risk.map(r => `<span style="display:inline-block;background:#fff5f5;padding:2px 8px;border-radius:12px;margin:2px;font-size:12px">${getDisplayName(r.member)} <small>(${r.weeksSince === 999 ? 'ไม่เคยเข้าร่วม' : r.weeksSince + ' wk'})</small></span>`).join('');
+    if (dropoutRisk.length > 5) html += `<span style="font-size:12px;margin-left:4px">+${dropoutRisk.length - 5} คน</span>`;
+    html += `</div>`;
+  }
+
+  section.innerHTML = html;
+  drawTrendChart(weeklyData);
+}
+
+function buildWeeklyTrend(spins) {
+  const weeks = [];
+  const now = new Date();
+  for (let i = 7; i >= 0; i--) {
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - (i * 7 + now.getDay()));
+    weekStart.setHours(0, 0, 0, 0);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 7);
+    const count = spins.filter(s => {
+      const d = new Date(s.timestamp);
+      return d >= weekStart && d < weekEnd;
+    }).length;
+    weeks.push({ label: `${weekStart.getDate()}/${weekStart.getMonth() + 1}`, count });
+  }
+  return weeks;
+}
+
+function drawTrendChart(data) {
+  const canvas = document.getElementById('trendChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width;
+  const h = canvas.height;
+  const pad = { top: 10, bottom: 30, left: 35, right: 10 };
+  const barW = (w - pad.left - pad.right) / data.length;
+  const maxVal = Math.max(1, ...data.map(d => d.count));
+
+  ctx.clearRect(0, 0, w, h);
+
+  const isDark = document.body.classList.contains('dark');
+  const textColor = isDark ? '#8899aa' : '#6b7280';
+  const gridColor = isDark ? '#0f3460' : '#f3f4f6';
+
+  // Grid lines
+  ctx.strokeStyle = gridColor;
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.top + ((h - pad.top - pad.bottom) * (1 - i / 4));
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(w - pad.right, y);
+    ctx.stroke();
+    ctx.fillStyle = textColor;
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(Math.round(maxVal * i / 4), pad.left - 4, y + 3);
+  }
+
+  // Bars
+  data.forEach((d, i) => {
+    const barH = d.count > 0 ? ((h - pad.top - pad.bottom) * d.count / maxVal) : 0;
+    const x = pad.left + i * barW + barW * 0.15;
+    const y = h - pad.bottom - barH;
+    const bw = barW * 0.7;
+
+    const gradient = ctx.createLinearGradient(x, y, x, h - pad.bottom);
+    gradient.addColorStop(0, '#cf202e');
+    gradient.addColorStop(1, '#ef4444');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(x, y, bw, barH);
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.roundRect(x, y, bw, Math.min(4, barH), [4, 4, 0, 0]);
+
+    // Label
+    ctx.fillStyle = textColor;
+    ctx.font = '9px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(d.label, pad.left + i * barW + barW / 2, h - pad.bottom + 14);
+
+    if (d.count > 0) {
+      ctx.fillStyle = isDark ? '#f0f0f0' : '#111827';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.fillText(d.count, pad.left + i * barW + barW / 2, y - 4);
+    }
+  });
+}
+
+// ==================== FEATURE D: INDIVIDUAL GOALS ====================
+function getMonthlyTarget() {
+  const el = document.getElementById('goalMonthlyTarget');
+  const val = el ? parseInt(el.value) : 4;
+  return val > 0 ? val : 4;
+}
+
+function countMeetingsThisMonth(memberId, spins) {
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+  let count = 0;
+  spins.forEach(spin => {
+    const d = new Date(spin.timestamp);
+    if (d < monthStart || d > monthEnd) return;
+    spin.groups.forEach(g => {
+      const allIds = getGroupAllIds(g);
+      if (allIds.includes(memberId)) count++;
+    });
+  });
+  return count;
+}
+
+function onGoalChange() {
+  const s = loadSettings();
+  s.monthlyTarget = getMonthlyTarget();
+  saveSettings(s);
+  renderSummary();
+}
+
+// ==================== FEATURE H: CLOUD SYNC (FIREBASE) ====================
+const SYNC_KEY = 'bni121_sync';
+let firebaseApp = null;
+let firebaseDb = null;
+let syncListener = null;
+let syncEnabled = false;
+
+function loadSyncConfig() {
+  try {
+    const raw = localStorage.getItem(SYNC_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return { enabled: false, roomId: null, lastSync: null, firebaseConfig: null };
+}
+
+function saveSyncConfig(config) {
+  localStorage.setItem(SYNC_KEY, JSON.stringify(config));
+}
+
+function initFirebase() {
+  const config = loadSyncConfig();
+  if (!config.firebaseConfig) return false;
+  try {
+    if (!firebaseApp) {
+      firebaseApp = firebase.initializeApp(config.firebaseConfig);
+    }
+    firebaseDb = firebase.database();
+    return true;
+  } catch(e) {
+    console.error('Firebase init failed:', e);
+    return false;
+  }
+}
+
+function generateRoomId() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
+}
+
+function renderSyncSection() {
+  const el = document.getElementById('syncContent');
+  if (!el) return;
+  const config = loadSyncConfig();
+
+  if (!config.firebaseConfig) {
+    el.innerHTML = `
+      <p style="color:#6b7280;font-size:13px;margin-bottom:12px;">
+        ตั้งค่า Firebase เพื่อเปิดใช้ Cloud Sync ระหว่างอุปกรณ์<br>
+        <small>สร้าง Firebase Realtime Database project แล้ววาง config ด้านล่าง</small>
+      </p>
+      <textarea id="firebaseConfigInput" style="width:100%;min-height:100px;padding:10px;border-radius:10px;border:1.5px solid #e5e7eb;font-family:monospace;font-size:12px;resize:vertical;" placeholder='{"apiKey":"...","authDomain":"...","databaseURL":"...","projectId":"..."}'></textarea>
+      <div class="sync-toolbar">
+        <button class="btn-sync btn-sync-create" onclick="saveFirebaseConfig()">บันทึก Config</button>
+      </div>
+    `;
+    return;
+  }
+
+  if (!config.enabled || !config.roomId) {
+    el.innerHTML = `
+      <p style="color:#6b7280;font-size:13px;margin-bottom:12px;">สร้างหรือเข้าร่วมห้อง Sync</p>
+      <div class="sync-toolbar">
+        <button class="btn-sync btn-sync-create" onclick="createSyncRoom()">สร้างห้องใหม่</button>
+        <input type="text" class="sync-input" id="joinRoomInput" placeholder="รหัสห้อง" maxlength="6">
+        <button class="btn-sync btn-sync-join" onclick="joinSyncRoom()">เข้าร่วม</button>
+      </div>
+      <div class="sync-toolbar">
+        <button style="font-size:12px;color:#ef4444;background:none;border:none;cursor:pointer;text-decoration:underline" onclick="resetFirebaseConfig()">รีเซ็ต Firebase Config</button>
+      </div>
+    `;
+    return;
+  }
+
+  const statusClass = syncEnabled ? 'connected' : 'disconnected';
+  const statusText = syncEnabled ? 'เชื่อมต่อแล้ว' : 'ไม่ได้เชื่อมต่อ';
+  el.innerHTML = `
+    <div class="sync-room-code">${config.roomId}</div>
+    <p class="sync-status-text">สถานะ: <span class="sync-dot ${statusClass}" style="display:inline-block"></span> ${statusText}</p>
+    ${config.lastSync ? `<p class="sync-status-text">Sync ล่าสุด: ${new Date(config.lastSync).toLocaleString('th-TH')}</p>` : ''}
+    <div class="sync-toolbar">
+      <button class="btn-sync btn-sync-create" onclick="syncPush()" ${!syncEnabled ? 'disabled' : ''}>Push ข้อมูล</button>
+      <button class="btn-sync btn-sync-disconnect" onclick="disconnectSync()">ยกเลิกการเชื่อมต่อ</button>
+    </div>
+  `;
+
+  // Update header dot
+  const dot = document.getElementById('syncDot');
+  if (dot) {
+    dot.style.display = 'inline-block';
+    dot.className = 'sync-dot ' + statusClass;
+  }
+}
+
+function saveFirebaseConfig() {
+  const input = document.getElementById('firebaseConfigInput');
+  if (!input) return;
+  try {
+    const config = JSON.parse(input.value.trim());
+    if (!config.databaseURL) { alert('Config ต้องมี databaseURL'); return; }
+    const syncConfig = loadSyncConfig();
+    syncConfig.firebaseConfig = config;
+    saveSyncConfig(syncConfig);
+    renderSyncSection();
+  } catch(e) {
+    alert('รูปแบบ JSON ไม่ถูกต้อง');
+  }
+}
+
+function resetFirebaseConfig() {
+  if (!confirm('รีเซ็ต Firebase Config? จะต้องตั้งค่าใหม่')) return;
+  disconnectSync();
+  const syncConfig = { enabled: false, roomId: null, lastSync: null, firebaseConfig: null };
+  saveSyncConfig(syncConfig);
+  renderSyncSection();
+}
+
+function createSyncRoom() {
+  if (!initFirebase()) { alert('Firebase ยังไม่พร้อม'); return; }
+  const roomId = generateRoomId();
+  const config = loadSyncConfig();
+  config.roomId = roomId;
+  config.enabled = true;
+  saveSyncConfig(config);
+  startSync(roomId);
+  syncPush();
+  renderSyncSection();
+}
+
+function joinSyncRoom() {
+  const input = document.getElementById('joinRoomInput');
+  if (!input) return;
+  const roomId = input.value.trim().toUpperCase();
+  if (roomId.length !== 6) { alert('รหัสห้อง 6 ตัว'); return; }
+  if (!initFirebase()) { alert('Firebase ยังไม่พร้อม'); return; }
+
+  const config = loadSyncConfig();
+  config.roomId = roomId;
+  config.enabled = true;
+  saveSyncConfig(config);
+  startSync(roomId);
+  renderSyncSection();
+}
+
+function startSync(roomId) {
+  if (!firebaseDb) {
+    if (!initFirebase()) return;
+  }
+  if (syncListener) {
+    firebaseDb.ref('rooms/' + loadSyncConfig().roomId).off('value', syncListener);
+  }
+  syncEnabled = true;
+  const ref = firebaseDb.ref('rooms/' + roomId);
+  syncListener = ref.on('value', (snapshot) => {
+    const cloudData = snapshot.val();
+    if (cloudData && cloudData._lastUpdate) {
+      const config = loadSyncConfig();
+      if (config.lastSync && cloudData._lastUpdate <= config.lastSync) return;
+      applyCloudData(cloudData);
+      config.lastSync = cloudData._lastUpdate;
+      saveSyncConfig(config);
+      renderSyncSection();
+    }
+  });
+
+  const dot = document.getElementById('syncDot');
+  if (dot) { dot.style.display = 'inline-block'; dot.className = 'sync-dot connected'; }
+}
+
+function syncPush() {
+  const config = loadSyncConfig();
+  if (!config.enabled || !config.roomId || !firebaseDb) return;
+
+  const now = new Date().toISOString();
+  const payload = {
+    _lastUpdate: now,
+    members: localStorage.getItem(MEMBERS_KEY) || '{}',
+    data: localStorage.getItem(STORAGE_KEY) || '{}',
+    settings: localStorage.getItem(SETTINGS_KEY) || '{}',
+    absent: localStorage.getItem(ABSENT_KEY) || '[]',
+    pairrules: localStorage.getItem(PAIRRULES_KEY) || '{"rules":[]}'
+  };
+
+  firebaseDb.ref('rooms/' + config.roomId).set(payload);
+  config.lastSync = now;
+  saveSyncConfig(config);
+}
+
+function applyCloudData(cloudData) {
+  if (cloudData.members) localStorage.setItem(MEMBERS_KEY, cloudData.members);
+  if (cloudData.data) localStorage.setItem(STORAGE_KEY, cloudData.data);
+  if (cloudData.settings) localStorage.setItem(SETTINGS_KEY, cloudData.settings);
+  if (cloudData.absent) localStorage.setItem(ABSENT_KEY, cloudData.absent);
+  if (cloudData.pairrules) localStorage.setItem(PAIRRULES_KEY, cloudData.pairrules);
+
+  // Reload UI
+  loadMemberData();
+  loadSession();
+  loadAbsent();
+  currentWheelCount = 0;
+  updatePoolStatus();
+  drawAllWheels();
+  const activeTab = document.querySelector('.tab-btn.active');
+  if (activeTab) {
+    const tabText = activeTab.textContent;
+    if (tabText.includes('ประวัติ')) renderHistory();
+    if (tabText.includes('สรุป')) renderSummary();
+    if (tabText.includes('จัดการ')) { renderMembersTab(); renderPairRules(); renderSyncSection(); }
+  }
+}
+
+function disconnectSync() {
+  if (syncListener && firebaseDb) {
+    const config = loadSyncConfig();
+    if (config.roomId) firebaseDb.ref('rooms/' + config.roomId).off('value', syncListener);
+  }
+  syncListener = null;
+  syncEnabled = false;
+  const config = loadSyncConfig();
+  config.enabled = false;
+  config.roomId = null;
+  saveSyncConfig(config);
+  const dot = document.getElementById('syncDot');
+  if (dot) { dot.style.display = 'none'; }
+  renderSyncSection();
+}
+
+// ==================== MODAL: ESCAPE KEY + CLICK OVERLAY ====================
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const overlays = [
+      { id: 'notesFormOverlay', close: hideNotesForm },
+      { id: 'ruleFormOverlay', close: hideRuleForm },
+      { id: 'memberFormOverlay', close: hideMemberForm },
+      { id: 'monthlyReportModal', close: closeMonthlyReport },
+      { id: 'memberDetailModal', close: closeMemberDetailModal }
+    ];
+    for (const ov of overlays) {
+      const el = document.getElementById(ov.id);
+      if (el && el.classList.contains('show')) { ov.close(); return; }
+    }
+  }
+});
+
+['memberFormOverlay', 'memberDetailModal', 'ruleFormOverlay', 'notesFormOverlay', 'monthlyReportModal'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener('click', function(e) {
+      if (e.target === el) {
+        if (id === 'memberFormOverlay') hideMemberForm();
+        else if (id === 'memberDetailModal') closeMemberDetailModal();
+        else if (id === 'ruleFormOverlay') hideRuleForm();
+        else if (id === 'notesFormOverlay') hideNotesForm();
+        else if (id === 'monthlyReportModal') closeMonthlyReport();
+      }
+    });
+  }
+});
+
+// ==================== INIT ====================
+loadMemberData();
+loadSession();
+loadAbsent();
+loadDarkMode();
+updatePoolStatus();
+drawAllWheels();
+renderPairRules();
+renderSyncSection();
+
+// Auto-reconnect sync if was enabled
+(function autoReconnectSync() {
+  const config = loadSyncConfig();
+  if (config.enabled && config.roomId && config.firebaseConfig) {
+    if (initFirebase()) {
+      startSync(config.roomId);
+    }
+  }
+})();
+</script>
+</body>
+</html>
