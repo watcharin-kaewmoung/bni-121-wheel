@@ -1027,17 +1027,21 @@ const STORAGE_KEY = 'bni121_data';
 let ltMembers = [];
 let regularMembers = [];
 
+const MEMBER_DATA_VERSION = 2; // bump this when DEFAULT data changes
+
 function loadMemberData() {
   try {
     const raw = localStorage.getItem(MEMBERS_KEY);
     if (raw) {
       const data = JSON.parse(raw);
-      ltMembers = data.lt || [];
-      regularMembers = data.members || [];
-      return;
+      if (data.version === MEMBER_DATA_VERSION) {
+        ltMembers = data.lt || [];
+        regularMembers = data.members || [];
+        return;
+      }
     }
   } catch(e) {}
-  // First time: copy from defaults
+  // First time or version mismatch: reset from defaults
   ltMembers = JSON.parse(JSON.stringify(DEFAULT_LT));
   regularMembers = JSON.parse(JSON.stringify(DEFAULT_MEMBERS));
   saveMemberData();
@@ -1045,7 +1049,7 @@ function loadMemberData() {
 
 function saveMemberData() {
   localStorage.setItem(MEMBERS_KEY, JSON.stringify({
-    version: 1,
+    version: MEMBER_DATA_VERSION,
     lt: ltMembers,
     members: regularMembers
   }));
